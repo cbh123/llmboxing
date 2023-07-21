@@ -17,7 +17,7 @@ defmodule BoxingWeb.QuizLive.Index do
        show_results: false,
        loading: false,
        submitted: false,
-       prefight: false,
+       prefight: true,
        round_winner: nil,
        winner: nil,
        text_prompt: "",

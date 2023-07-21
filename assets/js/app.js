@@ -26,6 +26,36 @@ const confetti = window.confetti;
 
 Hooks = {};
 
+Hooks.CopyToClipboard = {
+  mounted() {
+    this.el.addEventListener("click", (e) => {
+      const url = window.location.href.split("/").slice(0, 5).join("/");
+
+      navigator.clipboard.writeText(url);
+
+      Toastify({
+        text: "Copied link to clipboard",
+        duration: 1000,
+        newWindow: true,
+        close: false,
+        gravity: "top", // `top` or `bottom`
+        position: "right", // `left`, `center` or `right`
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+        className: "font-serif",
+        shadowColor: "none",
+        style: {
+          background: "white",
+          color: "indigo",
+          shadowColor: "none",
+          boxShadow: "none",
+          borderRadius: "50px",
+        },
+        onClick: function () {}, // Callback after click
+      }).showToast();
+    });
+  },
+};
+
 Hooks.Bell = {
   mounted() {
     this.handleEvent("ring", ({}) => {

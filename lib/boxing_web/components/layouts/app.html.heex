@@ -1,0 +1,16 @@
+<header class="px-4 sm:px-6 lg:px-8">
+  <div class="flex items-center justify-between border-b border-zinc-100 py-3">
+    <div class="flex font-fight items-center gap-4">
+      <a href="/">
+        <span>🥊</span>
+        <img src="/assets/logo.png" class="h-12 mx-auto inline-flex" alt="" />
+      </a>
+    </div>
+  </div>
+</header>
+<main class="px-12 py-4">
+  <div class="mx-auto">
+    <.flash_group flash={@flash} />
+    <%= @inner_content %>
+  </div>
+</main>

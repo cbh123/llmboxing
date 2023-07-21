@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" style="scrollbar-gutter: stable;">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix="">
+      <%= assigns[:page_title] || "Llama Boxing" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Llama Boxing" />
+    <meta name="twitter:description" content="Language Model Face Off" />
+    <meta
+      property="twitter:image"
+      content="https://github.com/replicate/zoo/assets/14149230/71776766-e4fa-4565-8e82-f257797b9612"
+    />
+    <meta property="og:type" content="image" />
+    <meta
+      property="og:image"
+      content="https://github.com/replicate/zoo/assets/14149230/71776766-e4fa-4565-8e82-f257797b9612"
+    />
+    <meta property="og:url" content="https://metarquiz.com" />
+    <meta property="og:description" content="Practice decoding METARs" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Iceberg&family=Press+Start+2P&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js">
+    </script>
+  </head>
+  <body class="bg-white antialiased">
+    <%= @inner_content %>
+  </body>
+</html>

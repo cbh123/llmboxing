@@ -1,0 +1,95 @@
+<div id="start" phx-hook="Bell">
+  <%= if @prefight do %>
+    <div class="font-fight text-center mt-4 text-2xl max-w-xl mx-auto">
+      <p>
+        <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
+        has taken the world by storm. Many have
+        claimed <a class="underline" href="https://news.ycombinator.com/item?id=36778932">performance similar to OpenAI's GPT-3.5</a>.
+        <br /><br /> The fight will be 10 rounds. Each round, pick the output you think is better.
+        <br /><br /> Enough talk. Let's settle this in the ring.
+      </p>
+      <button
+        phx-click="start"
+        class="mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+      >
+        Start Fight
+      </button>
+    </div>
+  <% else %>
+    <div class="absolute top-2 right-2">
+      <div class="w-96">
+        <dl class="mt-5 grid gap-5 grid-cols-2">
+          <%= for score <- @score do %>
+            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+              <dt class="truncate text-sm font-medium text-gray-500"><%= score.human_name %></dt>
+              <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
+                <%= score.score %>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+
+    <form id="form" phx-submit="generate" class="mt-16" phx-hook="Confetti">
+      <div>
+        <label for="prompt" class="block font-medium leading-6 text-gray-900">
+          Prompt
+        </label>
+        <div class="mt-2">
+          <input
+            name="prompt"
+            placeholder="Enter your prompt..."
+            type="text"
+            id="prompt"
+            class="block w-full font-mono rounded-md border-0 text-xl py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
+          />
+        </div>
+      </div>
+    </form>
+
+    <div class="mt-6">
+      <h5 :if={length(@prompts) == 2} class="text-center text-2xl font-extrabold">
+        Which is a better response to the prompt?
+      </h5>
+      <div class="grid grid-cols-2 gap-4 mt-6">
+        <%= if length(@prompts) != 2 do %>
+          Generating all responses...
+        <% else %>
+          <%= for prompt <- @prompts do %>
+            <div class={"#{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "text-green-500"} border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100"}>
+              <p :if={@show_results} class="model font-bold mb-4">
+                <%= prompt.model %>
+              </p>
+              <button
+                phx-click={
+                  JS.hide(to: ".select-button")
+                  |> JS.push("select")
+                }
+                phx-value-id={prompt.id}
+                phx-value-submission-id={prompt.submission_id}
+                class="absolute inset-0 select-button"
+              >
+              </button>
+              <p><%= prompt.completion %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= if @show_results do %>
+    <div class="text-center mx-auto mt-16 font-bold">
+      <p>
+        <%= @snarky_response %>
+      </p>
+      <button
+        class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+        phx-click="next"
+      >
+        Next Round
+      </button>
+    </div>
+  <% end %>
+</div>

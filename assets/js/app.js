@@ -29,9 +29,9 @@ Hooks = {};
 Hooks.CopyToClipboard = {
   mounted() {
     this.el.addEventListener("click", (e) => {
-      const url = window.location.href.split("/").slice(0, 5).join("/");
+      const result = document.getElementById("results");
 
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(result.innerText);
 
       Toastify({
         text: "Copied link to clipboard",
@@ -41,15 +41,8 @@ Hooks.CopyToClipboard = {
         gravity: "top", // `top` or `bottom`
         position: "right", // `left`, `center` or `right`
         stopOnFocus: true, // Prevents dismissing of toast on hover
-        className: "font-serif",
+        className: "font-fight",
         shadowColor: "none",
-        style: {
-          background: "white",
-          color: "indigo",
-          shadowColor: "none",
-          boxShadow: "none",
-          borderRadius: "50px",
-        },
         onClick: function () {}, // Callback after click
       }).showToast();
     });

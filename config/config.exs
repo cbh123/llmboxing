@@ -7,12 +7,6 @@
 # General application configuration
 import Config
 
-config :openai,
-  api_key: System.get_env("OPENAI_API_KEY"),
-  organization_key: System.get_env("OPENAI_ORG_KEY"),
-  # optional, passed to [HTTPoison.Request](https://hexdocs.pm/httpoison/HTTPoison.Request.html) options
-  http_options: [recv_timeout: 30_000]
-
 config :boxing,
   ecto_repos: [Boxing.Repo]
 

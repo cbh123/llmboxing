@@ -20,6 +20,12 @@ if System.get_env("PHX_SERVER") do
   config :boxing, BoxingWeb.Endpoint, server: true
 end
 
+config :openai,
+  api_key: System.get_env("OPENAI_API_KEY"),
+  organization_key: System.get_env("OPENAI_ORG_KEY"),
+  # optional, passed to [HTTPoison.Request](https://hexdocs.pm/httpoison/HTTPoison.Request.html) options
+  http_options: [recv_timeout: 30_000]
+
 config :replicate,
   replicate_api_token: System.fetch_env!("REPLICATE_API_TOKEN")
 

@@ -18,6 +18,13 @@ defmodule Boxing.Prompts do
   end
 
   @doc """
+  Get random prompt.
+  """
+  def get_random_prompt() do
+    from(p in Prompt, order_by: fragment("RANDOM()"), limit: 1, select: p.prompt) |> Repo.one()
+  end
+
+  @doc """
   Get random submission.
   """
   def get_random_submission() do

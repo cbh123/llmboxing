@@ -27,7 +27,7 @@ defmodule BoxingWeb.QuizLive.Index do
          %{human_name: "🦙 Llama 2", model: "llama13b-v2-chat", score: 0},
          %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", score: 0}
        ],
-       winning_score: 3
+       winning_score: 5
      )}
   end
 

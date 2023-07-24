@@ -22,16 +22,24 @@
       </button>
     </div>
   <% else %>
-    <div class="absolute top-2 right-2 font-fight">
-      <div class="w-96">
+    <div class="font-fight">
+      <div class="">
         <dl class="mt-5 grid gap-5 grid-cols-2">
-          <%= for score <- @score do %>
-            <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+          <%= for {score, i} <- @score |> Enum.with_index() do %>
+            <div class={"#{if i == 1, do: "text-right"} overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"}>
               <dt class="truncate text-sm font-medium text-gray-500">
-                <%= score.human_name %>
+                <%= score.human_name %> Hit Points
               </dt>
               <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                <%= score.score %> / <%= @winning_score %>
+                <%= score.health %>
+
+                <div class={"#{if i == 1, do: "transform scale-x-[-1]"} w-full bg-red-200 rounded-full h-2.5 mb-4"}>
+                  <div
+                    class="bg-blue-600 h-2.5 rounded-full"
+                    style={"width: #{score.health * 10}%"}
+                  >
+                  </div>
+                </div>
               </dd>
             </div>
           <% end %>
@@ -44,13 +52,19 @@
     </div>
 
     <div id="results" phx-hook="Confetti" class="mt-6">
-      <h5 id="header" class="text-2xl font-bold">
+      <h5 id="header" class="text-xl text-gray-700">
         Which is a better response?
       </h5>
 
       <%= if @show_results do %>
-        <div class="text-center mx-auto mt-16 font-bold">
+        <div class="text-center mx-auto mt-10 font-bold">
           <p>Round Winner: <%= @round_winner.model %></p>
+
+          <%= if @round_winner.model |> String.contains?("llama") do %>
+            <img class="h-44 rounded-lg mx-auto mt-4" src="/assets/llama.png" alt="llama boxing" />
+          <% else %>
+            <img class="h-44 rounded-lg mx-auto mt-4" src="/assets/gpt.png" alt="gpt-3.5 boxing" />
+          <% end %>
 
           <%= if is_nil(@winner) do %>
             <button
@@ -72,11 +86,15 @@
 
       <div class="grid grid-cols-2 gap-4 mt-10">
         <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
-          <div class={"#{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "text-green-500"} border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100"}>
+          <div class=" border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
             <p class="model font-bold mb-4">
               <%= if @show_results,
                 do: prompt.model,
                 else: "Contestant #{i + 1}" %>
+
+              <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
+                <span class="text-green-600">🎉 Round Winner 🎉</span>
+              <% end %>
             </p>
 
             <button

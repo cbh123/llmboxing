@@ -17,7 +17,7 @@ defmodule BoxingWeb.QuizLive.Index do
      socket
      |> assign(
        show_results: false,
-       prefight: true,
+       prefight: false,
        round_winner: nil,
        winner: nil,
        text_prompt: text_prompt,
@@ -25,10 +25,9 @@ defmodule BoxingWeb.QuizLive.Index do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", model: "llama13b-v2-chat", score: 0},
-         %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", score: 0}
-       ],
-       winning_score: 3
+         %{human_name: "🦙 Llama 2", model: "llama13b-v2-chat", health: 10},
+         %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", health: 10}
+       ]
      )}
   end
 
@@ -42,11 +41,11 @@ defmodule BoxingWeb.QuizLive.Index do
 
     new_score =
       socket.assigns.score
-      |> Enum.map(fn %{model: model, score: score, human_name: human_name} ->
-        if model == prompt.model do
-          %{model: model, score: score + 1, human_name: human_name}
+      |> Enum.map(fn %{model: model, health: health, human_name: human_name} ->
+        if model != prompt.model do
+          %{model: model, health: health - 1, human_name: human_name}
         else
-          %{model: model, score: score, human_name: human_name}
+          %{model: model, health: health, human_name: human_name}
         end
       end)
 
@@ -58,7 +57,7 @@ defmodule BoxingWeb.QuizLive.Index do
 
     winner =
       new_score
-      |> Enum.filter(fn %{score: score} -> score >= socket.assigns.winning_score end)
+      |> Enum.filter(fn %{health: health} -> health == 0 end)
       |> Enum.at(0)
 
     if is_nil(winner) do
@@ -98,7 +97,7 @@ defmodule BoxingWeb.QuizLive.Index do
   def handle_info(:tick, socket) do
     new_progress = socket.assigns.progress + 1000
 
-    if new_progress <= 3000 do
+    if new_progress <= 4000 do
       Process.send_after(self(), :tick, 1000)
     else
       send(self(), :next)

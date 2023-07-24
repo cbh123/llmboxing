@@ -51,7 +51,7 @@
     </div>
 
     <div class="mt-16">
-      <h5 class="text-4xl font-bold">"<%= @text_prompt %>"</h5>
+      <h5 class="text-xl sm:text-4xl font-bold">"<%= @text_prompt %>"</h5>
     </div>
 
     <div id="results" phx-hook="Confetti" class="mt-6">
@@ -98,9 +98,9 @@
         </div>
       <% end %>
 
-      <div class="grid sm:grid-cols-2 gap-4 mt-10">
+      <div class="grid grid-cols-2 gap-4 mt-10">
         <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
-          <div class=" border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
+          <div class=" border text-xs sm:text-base font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
             <p class="model font-bold mb-4">
               <%= if @show_results,
                 do: prompt.model,

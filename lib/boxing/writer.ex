@@ -15,7 +15,7 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Prompts.count_prompts() < 50 do
+    if Prompts.count_prompts() < 1000 do
       questions = Prompts.create_questions()
 
       questions

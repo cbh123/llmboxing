@@ -64,11 +64,20 @@ Hooks.Bell = {
 Hooks.Confetti = {
   mounted() {
     this.handleEvent("confetti", ({ winner }) => {
+      console.log(winner);
+      if (winner.includes("gpt")) {
+        let robotNum = Math.floor(Math.random() * 4) + 1;
+        let robotAudio = new Audio(`/sounds/robot${robotNum}.mp3`);
+        robotAudio.play();
+      } else {
+        let llamaNum = Math.floor(Math.random() * 2) + 1;
+        let llamaAudio = new Audio(`/sounds/llama${llamaNum}.mp3`);
+        llamaAudio.play();
+      }
+
       let punchNum = Math.floor(Math.random() * 5) + 1;
       let audio = new Audio(`/sounds/punch${punchNum}.mp3`);
       audio.play();
-
-      console.log(winner);
 
       confetti({
         particleCount: 100,

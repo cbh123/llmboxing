@@ -135,9 +135,18 @@
               <%= emoji %>
             <% end %>
           </span>
-          <div class="mt-12">
+          <div class="mt-12 grid grid-cols-2 gap-4">
             <.button id="CopyClipboard" phx-hook="CopyToClipboard">Copy Results</.button>
+            <div>
+              <.link href="https://replicate.com/replicate/llama70b-v2-chat?utm_project=llmboxing">
+                <.button>
+                  Are you a developer? Run Llama2 Replicate &rarr;
+                </.button>
+              </.link>
+            </div>
           </div>
+
+          <div class="mt-6"></div>
         </div>
       </div>
     </.modal>

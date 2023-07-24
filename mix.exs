@@ -51,7 +51,7 @@ defmodule Boxing.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:openai, "~> 0.5.3"},
-      {:replicate, "~> 1.0.2"}
+      {:replicate, "~> 1.0.3"}
     ]
   end
 

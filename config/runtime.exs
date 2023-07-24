@@ -27,7 +27,8 @@ config :openai,
   http_options: [recv_timeout: 30_000]
 
 config :replicate,
-  replicate_api_token: System.fetch_env!("REPLICATE_API_TOKEN")
+  replicate_api_token: System.fetch_env!("REPLICATE_API_TOKEN"),
+  timeout: :infinity
 
 if config_env() == :prod do
   database_url =

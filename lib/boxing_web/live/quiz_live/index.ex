@@ -26,7 +26,7 @@ defmodule BoxingWeb.QuizLive.Index do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", js_name: "llama", model: "llama70b-v2-chat", health: 5},
+         %{human_name: "🦙 Llama", js_name: "llama", model: "llama70b-v2-chat", health: 5},
          %{human_name: "🤖 GPT 3.5", js_name: "gpt", model: "gpt-3.5-turbo", health: 5}
        ]
      )}

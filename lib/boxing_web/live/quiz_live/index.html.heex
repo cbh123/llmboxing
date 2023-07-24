@@ -58,11 +58,11 @@
 
     <div id="results" phx-hook="Confetti" class="mt-6">
       <h5 :if={not @show_results} id="header" phx-hook="Bell" class="text-xl text-gray-700">
-        Which is a better response?
+        Which is a better response? <span>(Models are shuffled each round)</span>
       </h5>
 
       <%= if @show_results do %>
-        <div class="text-center mx-auto font-bold">
+        <div class="text-center mx-auto my-10 font-bold">
           <%= if is_nil(@winner) do %>
             <button
               id="next"

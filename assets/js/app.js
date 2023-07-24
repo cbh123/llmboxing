@@ -61,6 +61,26 @@ Hooks.Bell = {
   },
 };
 
+Hooks.Timer = {
+  mounted() {
+    this.handleEvent("timer", ({}) => {
+      const timerElement = document.getElementById("timer");
+      // three second countdown
+      let count = 3;
+
+      let interval = setInterval(() => {
+        count -= 1;
+
+        timerElement.innerText = `${count}`;
+
+        if (count >= 3) {
+          clearInterval(interval);
+        }
+      }, 1000); // update every 1s for 3 seconds
+    });
+  },
+};
+
 Hooks.Confetti = {
   mounted() {
     this.handleEvent("confetti", ({ winner }) => {

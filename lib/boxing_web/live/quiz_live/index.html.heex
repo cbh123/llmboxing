@@ -2,7 +2,7 @@
   <%= if @prefight do %>
     <div class="text-center mt-8 text-2xl max-w-xl mx-auto font-fight">
       <img
-        src="https://github.com/replicate/zoo/assets/14149230/33200a52-b615-4f77-ba01-03a1a9ad4d78"
+        src={~p"/images/stats.png"}
         alt="llama 2 vs gpt-3.5 fight preview"
         class="rounded-lg shadow-2xl border-4 border-red-500 my-8"
       />
@@ -36,7 +36,7 @@
                 <div class={"#{if i == 1, do: "transform scale-x-[-1]"} w-full bg-red-200 rounded-full h-2.5 mb-4"}>
                   <div
                     class="bg-blue-600 h-2.5 rounded-full"
-                    style={"width: #{score.health * 10}%"}
+                    style={"width: #{score.health * 20}%"}
                   >
                   </div>
                 </div>
@@ -76,10 +76,12 @@
 
           <%= if is_nil(@winner) do %>
             <button
+              id="next"
+              phx-hook="Timer"
               class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
               phx-click="next"
             >
-              Next Round in <%= round((4000 - @progress) / 1000) %> &rarr;
+              Next Round in <span id="timer">3</span> &rarr;
             </button>
           <% else %>
             <div class="mt-6">
@@ -100,7 +102,7 @@
             <p class="model font-bold mb-4">
               <%= if @show_results,
                 do: prompt.model,
-                else: "Contestant #{i + 1}" %>
+                else: "???" %>
 
               <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
                 <span class="text-green-600">🎉 Round Winner 🎉</span>

@@ -25,8 +25,8 @@ defmodule BoxingWeb.QuizLive.Index do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", model: "llama70b-v2-chat", health: 10},
-         %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", health: 10}
+         %{human_name: "🦙 Llama 2", model: "llama70b-v2-chat", health: 5},
+         %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", health: 5}
        ]
      )}
   end
@@ -61,7 +61,7 @@ defmodule BoxingWeb.QuizLive.Index do
       |> Enum.at(0)
 
     if is_nil(winner) do
-      send(self(), :tick)
+      Process.send_after(self(), :next, 3000)
     end
 
     {:noreply,
@@ -72,6 +72,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(show_results: true)
      |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
      |> assign(winner: winner)
+     |> push_event("timer", %{})
      |> push_event("confetti", %{winner: prompt.model})}
   end
 
@@ -92,18 +93,6 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(round_winner: nil)
      |> assign(text_prompt: text_prompt)
      |> push_event("ring", %{})}
-  end
-
-  def handle_info(:tick, socket) do
-    new_progress = socket.assigns.progress + 1000
-
-    if new_progress <= 4000 do
-      Process.send_after(self(), :tick, 1000)
-    else
-      send(self(), :next)
-    end
-
-    {:noreply, assign(socket, progress: new_progress)}
   end
 
   def handle_event("inspire", _, socket) do

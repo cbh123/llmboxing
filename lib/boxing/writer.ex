@@ -15,7 +15,7 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Prompts.count_prompts() < 30 do
+    if Prompts.count_prompts() < 100 do
       questions = Prompts.create_questions()
       questions |> Enum.each(fn q -> Prompts.generate(q) end)
       schedule_creation()

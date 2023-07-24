@@ -64,7 +64,6 @@ Hooks.Bell = {
 Hooks.Timer = {
   mounted() {
     this.handleEvent("timer", ({ game_over }) => {
-      console.log(game_over);
       const timerElement = document.getElementById("timer");
       // three second countdown
       let count = 3;

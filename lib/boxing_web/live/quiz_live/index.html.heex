@@ -65,6 +65,15 @@
         <div class="text-center mx-auto my-10 font-bold">
           <%= if is_nil(@winner) do %>
             <button
+              type="button"
+              id="copy-question"
+              phx-hook="CopyLinkToClipboard"
+              class="font-fight mt-6 text-black bg-white px-4 py-2 rounded-lg hover:bg-gray-100 border-2"
+            >
+              Copy Link to Question
+            </button>
+
+            <button
               id="next"
               class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
               phx-click="next"

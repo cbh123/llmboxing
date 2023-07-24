@@ -71,7 +71,6 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(round_winner: prompt)
      |> assign(score: new_score)
      |> assign(show_results: true)
-     |> assign(snarky_response: snark(prompt.model))
      |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
      |> assign(winner: winner)
      |> push_event("confetti", %{winner: prompt.model})}

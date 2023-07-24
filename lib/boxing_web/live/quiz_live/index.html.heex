@@ -50,10 +50,7 @@
 
       <%= if @show_results do %>
         <div class="text-center mx-auto mt-16 font-bold">
-          <p>
-            <%= @snarky_response %>
-          </p>
-          <p class="text-xs italic text-gray-500">snark provided by gpt-4</p>
+          <p>Round Winner: <%= @round_winner.model %></p>
 
           <%= if is_nil(@winner) do %>
             <button

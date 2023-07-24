@@ -53,10 +53,9 @@
 
     <div class="mt-16">
       <h5 class="text-xl sm:text-4xl font-bold">
-        "<%= @text_prompt
-        |> String.replace(
-          ". Answer as succintly as possible. Maximum response len
-gth of 1 paragraph.",
+        "<%= String.replace(
+          @text_prompt,
+          ". Answer as succintly as possible. Maximum response length of 1 paragraph.",
           ""
         ) %>"
       </h5>

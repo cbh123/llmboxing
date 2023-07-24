@@ -82,12 +82,14 @@
               Next Round in <%= round((4000 - @progress) / 1000) %> &rarr;
             </button>
           <% else %>
-            <.link
-              class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
-              navigate="/"
-            >
-              Play Again
-            </.link>
+            <div class="mt-6">
+              <.link
+                class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+                navigate="/"
+              >
+                Play Again
+              </.link>
+            </div>
           <% end %>
         </div>
       <% end %>
@@ -127,13 +129,15 @@
           <%= @winner.human_name %> wins!
         </.header>
         <div class="mt-4">
-          <span id="results">
-            LlamaFight Results:
+          <span id="scoreboard">
+            LLM Boxing Results: <br />
             <%= for emoji <- @vote_emojis do %>
               <%= emoji %>
             <% end %>
           </span>
-          <.button id="CopyClipboard" phx-hook="CopyToClipboard">Share Results</.button>
+          <div class="mt-12">
+            <.button id="CopyClipboard" phx-hook="CopyToClipboard">Copy Results</.button>
+          </div>
         </div>
       </div>
     </.modal>

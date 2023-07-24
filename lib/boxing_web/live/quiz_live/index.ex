@@ -25,7 +25,7 @@ defmodule BoxingWeb.QuizLive.Index do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", model: "llama13b-v2-chat", health: 10},
+         %{human_name: "🦙 Llama 2", model: "llama70b-v2-chat", health: 10},
          %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", health: 10}
        ]
      )}
@@ -51,8 +51,8 @@ defmodule BoxingWeb.QuizLive.Index do
 
     emoji =
       case prompt.model do
-        "gpt-3.5-turbo" -> "🤖"
-        "llama13b-v2-chat" -> "🦙"
+        "gpt-3.5-turbo" -> "🦙 ✅"
+        "llama70b-v2-chat" -> "🤖 ✅"
       end
 
     winner =
@@ -113,96 +113,5 @@ defmodule BoxingWeb.QuizLive.Index do
 
   def handle_event("update-prompt", %{"prompt" => prompt}, socket) do
     {:noreply, assign(socket, text_prompt: prompt)}
-  end
-
-  def handle_event("generate", %{"prompt" => prompt}, socket) do
-    submission_id = Ecto.UUID.generate()
-
-    # Prepare a list for collected prompts
-    prompt_list = Agent.start_link(fn -> [] end, name: :prompt_list)
-
-    spawn(fn ->
-      for model <- ["gpt-3.5-turbo", "llama13b-v2-chat"] do
-        prompt = write(%{model: model, prompt: prompt, submission_id: submission_id})
-
-        # Instead of broadcasting the prompt right away, we add it to the list of collected prompts
-        Agent.update(:prompt_list, fn prompts -> [prompt | prompts] end)
-
-        if length(Agent.get(:prompt_list, & &1)) == 2 do
-          # When all prompts are collected, then broadcast
-          PubSub.broadcast(
-            Boxing.PubSub,
-            "predictions",
-            {:generated, Agent.get(:prompt_list, & &1)}
-          )
-
-          # Stop the Agent
-          Agent.stop(:prompt_list)
-        end
-      end
-    end)
-
-    {:noreply, socket |> assign(loading: true) |> assign(submitted: true)}
-  end
-
-  def handle_info({:generated, prompts}, socket) do
-    {:noreply, assign(socket, prompts: prompts, loading: false)}
-  end
-
-  def write(%{model: "llama13b-v2-chat", prompt: raw_prompt, submission_id: submission_id}) do
-    model = Replicate.Models.get!("a16z-infra/llama13b-v2-chat")
-    version = Replicate.Models.get_latest_version!(model)
-
-    prompt = "User: #{raw_prompt}\nAssistant:"
-
-    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
-    {:ok, prediction} = Replicate.Predictions.wait(prediction)
-
-    result = Enum.join(prediction.output)
-
-    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
-    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
-
-    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
-
-    {:ok, prompt} =
-      Prompts.create_prompt(%{
-        prompt: raw_prompt,
-        completion: result,
-        model: "llama13b-v2-chat",
-        version: version.id,
-        time: DateTime.diff(start, completed, :second) |> abs(),
-        submission_id: submission_id
-      })
-
-    prompt
-  end
-
-  def write(%{model: "gpt-3.5-turbo", prompt: prompt, submission_id: submission_id}) do
-    start_time = System.monotonic_time()
-
-    messages = [
-      %{role: "user", content: prompt}
-    ]
-
-    {:ok, %{choices: [%{"message" => %{"content" => content}}]}} =
-      OpenAI.chat_completion(
-        model: "gpt-3.5-turbo",
-        messages: messages
-      )
-
-    end_time = System.monotonic_time()
-
-    {:ok, prompt} =
-      Prompts.create_prompt(%{
-        prompt: prompt,
-        completion: content,
-        model: "gpt-3.5-turbo",
-        version: "gpt-3.5-turbo",
-        time: System.convert_time_unit(end_time - start_time, :native, :second) |> abs(),
-        submission_id: submission_id
-      })
-
-    prompt
   end
 end

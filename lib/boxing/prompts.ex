@@ -9,6 +9,114 @@ defmodule Boxing.Prompts do
   alias Boxing.Prompts.Prompt
 
   @doc """
+  Creates a question(s) with GPT-4.
+
+  Returns a list of [question, question, ...]
+  """
+  def create_questions() do
+    {:ok, %{choices: [%{"message" => %{"content" => content}} | _]}} =
+      OpenAI.chat_completion(
+        model: "gpt-4",
+        messages: [
+          %{
+            role: "system",
+            content:
+              "You are a helpful bot that creates questions for comparing language models. Be creative! Just give me the question, and I'll do the rest."
+          },
+          %{
+            role: "user",
+            content: """
+            I'm creating an app that compares large language model completions. Can you write me some prompts I can use to compare them? They should be in a wide range of topics. For example, here are some I have already:
+
+            Example outputs:
+            How are you today?
+            My wife wants me to pick up some Indian food for dinner. I always get the same things - what should I try?
+            How much wood could a wood chuck chuck if a wood chuck could chuck wood?
+            What's 3 x 5 / 10 + 9
+            I really like the novel Anathem by Neal Stephenson. Based on that book, what else might I like?
+
+            Can you give me another? Just give me the question. Separate outputs with a \n. Do NOT include numbers in the output. Do NOT start your response with something like "Sure, here are some additional prompts spanning a number of different topics:". Just give me the questions.
+            """
+          }
+        ]
+      )
+
+    content |> String.split("\n")
+  end
+
+  @doc """
+  Given a question, assigns it a subission ID, answers it with Llama 70B and GPT-3.5,
+  and save to DB.
+  """
+  def generate(question) do
+    submission_id = Ecto.UUID.generate()
+
+    for model <- ["gpt-3.5-turbo", "llama70b-v2-chat"] do
+      {:ok, prompt} = write(%{model: model, question: question, submission_id: submission_id})
+    end
+  end
+
+  def write(%{model: "llama70b-v2-chat", question: raw_prompt, submission_id: submission_id}) do
+    model = Replicate.Models.get!("replicate/llama70b-v2-chat")
+    version = Replicate.Models.get_latest_version!(model)
+
+    prompt = "User: #{raw_prompt}\nAssistant:"
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = Enum.join(prediction.output)
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: raw_prompt,
+      completion: result,
+      model: "llama70b-v2-chat",
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id
+    })
+  end
+
+  def write(%{model: "gpt-3.5-turbo", question: prompt, submission_id: submission_id}) do
+    start_time = System.monotonic_time()
+
+    messages = [
+      %{role: "user", content: prompt}
+    ]
+
+    {:ok, %{choices: [%{"message" => %{"content" => content}}]}} =
+      OpenAI.chat_completion(
+        model: "gpt-3.5-turbo",
+        messages: messages
+      )
+
+    end_time = System.monotonic_time()
+
+    create_prompt(%{
+      prompt: prompt,
+      completion: content,
+      model: "gpt-3.5-turbo",
+      version: "gpt-3.5-turbo",
+      time: System.convert_time_unit(end_time - start_time, :native, :second) |> abs(),
+      submission_id: submission_id
+    })
+  end
+
+  @doc """
+  Count prompts.
+  """
+  def count_prompts() do
+    from(p in Prompt) |> Repo.aggregate(:count)
+  end
+
+  @doc """
   Vote.
   """
   def vote(id) do

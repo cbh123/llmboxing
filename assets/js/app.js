@@ -29,7 +29,9 @@ Hooks = {};
 Hooks.CopyToClipboard = {
   mounted() {
     this.el.addEventListener("click", (e) => {
-      const result = document.getElementById("results");
+      const result = document.getElementById("scoreboard");
+
+      console.log(result);
 
       navigator.clipboard.writeText(result.innerText);
 
@@ -53,7 +55,7 @@ Hooks.Bell = {
   mounted() {
     this.handleEvent("ring", ({}) => {
       console.log("bell");
-      let audio = new Audio("/assets/sounds/bell-start.mp3");
+      let audio = new Audio("/sounds/bell-start.mp3");
       audio.play();
     });
   },
@@ -63,7 +65,7 @@ Hooks.Confetti = {
   mounted() {
     this.handleEvent("confetti", ({ winner }) => {
       let punchNum = Math.floor(Math.random() * 5) + 1;
-      let audio = new Audio(`/assets/sounds/punch${punchNum}.mp3`);
+      let audio = new Audio(`/sounds/punch${punchNum}.mp3`);
       audio.play();
 
       console.log(winner);

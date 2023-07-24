@@ -68,8 +68,8 @@ Hooks.Timer = {
     });
     this.handleEvent("timer", ({ game_over }) => {
       const timerElement = document.getElementById("timer");
-      // three second countdown
-      let count = 3;
+      // 5 second countdown
+      let count = 5;
 
       let interval = setInterval(() => {
         count -= 1;

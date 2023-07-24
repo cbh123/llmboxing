@@ -79,6 +79,15 @@ Hooks.Timer = {
           this.pushEvent("next", {});
         }
       }, 1000); // update every 1s for 3 seconds
+
+      // Save interval id to the socket for later use
+      this.el.dataset.intervalId = interval;
+    });
+    this.handleEvent("clear_interval", (_payload) => {
+      const intervalId = this.el.dataset.intervalId;
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     });
   },
 };

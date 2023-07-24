@@ -74,7 +74,7 @@ defmodule BoxingWeb.QuizLive.Index do
 
   def handle_event("next", _, socket) do
     send(self(), :next)
-    {:noreply, socket}
+    {:noreply, socket |> push_event("clear_interval", %{})}
   end
 
   def handle_info(:next, socket) do

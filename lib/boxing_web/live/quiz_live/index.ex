@@ -11,7 +11,8 @@ defmodule BoxingWeb.QuizLive.Index do
       PubSub.subscribe(Boxing.PubSub, "predictions")
     end
 
-    %{text_prompt: text_prompt, prompts: prompts} = Prompts.get_random_submission()
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+      Prompts.get_random_submission()
 
     {:ok,
      socket
@@ -29,6 +30,25 @@ defmodule BoxingWeb.QuizLive.Index do
          %{human_name: "🤖 GPT 3.5", js_name: "gpt", model: "gpt-3.5-turbo", health: 5}
        ]
      )}
+  end
+
+  def handle_params(%{"id" => id}, _url, socket) do
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+      Prompts.get_submission(id)
+
+    {:noreply,
+     socket
+     |> assign(show_results: false)
+     |> assign(progress: 0)
+     |> assign(submitted: false)
+     |> assign(prefight: false)
+     |> assign(prompts: prompts)
+     |> assign(round_winner: nil)
+     |> assign(text_prompt: text_prompt)}
+  end
+
+  def handle_params(_params, _url, socket) do
+    {:noreply, socket}
   end
 
   def handle_event("start", _, socket) do
@@ -79,7 +99,8 @@ defmodule BoxingWeb.QuizLive.Index do
   end
 
   def handle_info(:next, socket) do
-    %{text_prompt: text_prompt, prompts: prompts} = Prompts.get_random_submission()
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+      Prompts.get_random_submission()
 
     {:noreply,
      socket
@@ -89,7 +110,8 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(prompts: prompts)
      |> assign(round_winner: nil)
      |> assign(text_prompt: text_prompt)
-     |> push_event("ring", %{})}
+     |> push_event("ring", %{})
+     |> push_patch(to: ~p"/question/#{submission_id}")}
   end
 
   def handle_event("inspire", _, socket) do

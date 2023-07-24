@@ -55,28 +55,12 @@
     </div>
 
     <div id="results" phx-hook="Confetti" class="mt-6">
-      <h5 id="header" phx-hook="Bell" class="text-xl text-gray-700">
+      <h5 :if={not @show_results} id="header" phx-hook="Bell" class="text-xl text-gray-700">
         Which is a better response?
       </h5>
 
       <%= if @show_results do %>
-        <div class="text-center mx-auto mt-10 font-bold">
-          <p>Round Winner: <%= @round_winner.model %></p>
-
-          <%= if @round_winner.model |> String.contains?("llama") do %>
-            <img
-              class="h-44 rounded-lg mx-auto mt-4"
-              src={~p"/images/llama.png"}
-              alt="llama boxing"
-            />
-          <% else %>
-            <img
-              class="h-44 rounded-lg mx-auto mt-4"
-              src={~p"/images/gpt.png"}
-              alt="gpt-3.5 boxing"
-            />
-          <% end %>
-
+        <div class="text-center mx-auto my-10 font-bold">
           <%= if is_nil(@winner) do %>
             <button
               id="next"
@@ -94,6 +78,22 @@
                 Play Again
               </.link>
             </div>
+          <% end %>
+
+          <p class="mt-6">Round Winner: <%= @round_winner.model %></p>
+
+          <%= if @round_winner.model |> String.contains?("llama") do %>
+            <img
+              class="h-44 rounded-lg mx-auto mt-4"
+              src={~p"/images/llama.png"}
+              alt="llama boxing"
+            />
+          <% else %>
+            <img
+              class="h-44 rounded-lg mx-auto mt-4"
+              src={~p"/images/gpt.png"}
+              alt="gpt-3.5 boxing"
+            />
           <% end %>
         </div>
       <% end %>

@@ -18,6 +18,7 @@ defmodule BoxingWeb.Router do
     pipe_through :browser
 
     live "/", QuizLive.Index, :index
+    live "/question/:id", QuizLive.Index, :index
 
     live "/prompts", PromptLive.Index, :index
     live "/prompts/new", PromptLive.Index, :new

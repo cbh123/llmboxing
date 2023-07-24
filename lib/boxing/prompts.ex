@@ -132,6 +132,25 @@ defmodule Boxing.Prompts do
     from(p in Prompt, order_by: fragment("RANDOM()"), limit: 1, select: p.prompt) |> Repo.one()
   end
 
+  def get_submission(submission_id) do
+    unique_prompt =
+      from(p in Prompt, where: p.submission_id == ^submission_id) |> Repo.all() |> Enum.at(0)
+
+    # Get all prompts with the random submission_id
+    prompts =
+      Prompt
+      |> where([p], p.submission_id == ^submission_id)
+      |> Repo.all()
+      |> Enum.shuffle()
+
+    # Return a map with the unique prompt and all associated prompts
+    %{
+      text_prompt: unique_prompt.prompt,
+      prompts: prompts,
+      submission_id: unique_prompt.submission_id
+    }
+  end
+
   @doc """
   Get random submission.
   """
@@ -157,7 +176,11 @@ defmodule Boxing.Prompts do
         |> Enum.shuffle()
 
       # Return a map with the unique prompt and all associated prompts
-      %{text_prompt: unique_prompt.prompt, prompts: prompts}
+      %{
+        text_prompt: unique_prompt.prompt,
+        prompts: prompts,
+        submission_id: unique_prompt.submission_id
+      }
     end
   end
 

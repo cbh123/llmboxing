@@ -17,7 +17,7 @@ defmodule BoxingWeb.QuizLive.Index do
      socket
      |> assign(
        show_results: false,
-       prefight: false,
+       prefight: true,
        round_winner: nil,
        winner: nil,
        text_prompt: text_prompt,

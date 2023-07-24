@@ -61,9 +61,17 @@
           <p>Round Winner: <%= @round_winner.model %></p>
 
           <%= if @round_winner.model |> String.contains?("llama") do %>
-            <img class="h-44 rounded-lg mx-auto mt-4" src="/assets/llama.png" alt="llama boxing" />
+            <img
+              class="h-44 rounded-lg mx-auto mt-4"
+              src={~p"/images/llama.png"}
+              alt="llama boxing"
+            />
           <% else %>
-            <img class="h-44 rounded-lg mx-auto mt-4" src="/assets/gpt.png" alt="gpt-3.5 boxing" />
+            <img
+              class="h-44 rounded-lg mx-auto mt-4"
+              src={~p"/images/gpt.png"}
+              alt="gpt-3.5 boxing"
+            />
           <% end %>
 
           <%= if is_nil(@winner) do %>

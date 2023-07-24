@@ -16,7 +16,7 @@ config :boxing, BoxingWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json",
   check_origin: [
     "https://modelfight.fly.dev",
-    "https://modelstreetfight.com"
+    "https://llmboxing.com"
   ]
 
 # Configures Swoosh API Client

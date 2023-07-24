@@ -15,9 +15,16 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Prompts.count_prompts() < 1000 do
+    if Prompts.count_prompts() < 50 do
       questions = Prompts.create_questions()
-      questions |> Enum.each(fn q -> Prompts.generate("#{q}. Answer in 1 paragraph.") end)
+
+      questions
+      |> Enum.each(fn q ->
+        Prompts.generate(
+          "#{q}. Answer as succintly as possible. Maximum response length of 1 paragraph."
+        )
+      end)
+
       schedule_creation()
     end
 

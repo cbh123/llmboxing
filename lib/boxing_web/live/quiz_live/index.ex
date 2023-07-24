@@ -11,18 +11,19 @@ defmodule BoxingWeb.QuizLive.Index do
       PubSub.subscribe(Boxing.PubSub, "predictions")
     end
 
+    %{text_prompt: text_prompt, prompts: prompts} = Prompts.get_random_submission()
+
     {:ok,
      socket
      |> assign(
        show_results: false,
-       loading: false,
-       submitted: false,
        prefight: true,
        round_winner: nil,
        winner: nil,
-       text_prompt: "",
-       prompts: [],
+       text_prompt: text_prompt,
+       prompts: prompts,
        vote_emojis: [],
+       progress: 0,
        score: [
          %{human_name: "🦙 Llama 2", model: "llama13b-v2-chat", score: 0},
          %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", score: 0}
@@ -55,32 +56,58 @@ defmodule BoxingWeb.QuizLive.Index do
         "llama13b-v2-chat" -> "🦙"
       end
 
+    winner =
+      new_score
+      |> Enum.filter(fn %{score: score} -> score >= socket.assigns.winning_score end)
+      |> Enum.at(0)
+
+    if is_nil(winner) do
+      send(self(), :tick)
+    end
+
     {:noreply,
      socket
+     |> assign(progress: 0)
      |> assign(round_winner: prompt)
      |> assign(score: new_score)
      |> assign(show_results: true)
      |> assign(snarky_response: snark(prompt.model))
      |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
-     |> assign(
-       winner:
-         new_score
-         |> Enum.filter(fn %{score: score} -> score >= socket.assigns.winning_score end)
-         |> Enum.at(0)
-         |> IO.inspect(label: "winner ...")
-     )
+     |> assign(winner: winner)
      |> push_event("confetti", %{winner: prompt.model})}
   end
 
   def handle_event("next", _, socket) do
+    send(self(), :next)
+    {:noreply, socket}
+  end
+
+  def handle_info(:next, socket) do
+    %{text_prompt: text_prompt, prompts: prompts} = Prompts.get_random_submission()
+
     {:noreply,
      socket
      |> assign(show_results: false)
+     |> assign(progress: 0)
      |> assign(submitted: false)
-     |> assign(prompts: [])
+     |> assign(prompts: prompts)
      |> assign(round_winner: nil)
-     |> assign(text_prompt: "")
+     |> assign(text_prompt: text_prompt)
      |> push_event("ring", %{})}
+  end
+
+  def handle_info(:tick, socket) do
+    new_progress = socket.assigns.progress + 1000
+
+    if new_progress <= 3000 do
+      Process.send_after(self(), :tick, 1000)
+    else
+      send(self(), :next)
+    end
+
+    IO.puts(new_progress)
+
+    {:noreply, assign(socket, progress: new_progress)}
   end
 
   def handle_event("inspire", _, socket) do
@@ -167,7 +194,6 @@ defmodule BoxingWeb.QuizLive.Index do
         model: "gpt-3.5-turbo",
         messages: messages
       )
-      |> IO.inspect(label: "")
 
     end_time = System.monotonic_time()
 

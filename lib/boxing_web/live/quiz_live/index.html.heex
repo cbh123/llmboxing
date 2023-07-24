@@ -1,6 +1,11 @@
 <div id="start" phx-hook="Bell">
   <%= if @prefight do %>
     <div class="text-center mt-8 text-2xl max-w-xl mx-auto">
+      <img
+        src="https://github.com/replicate/zoo/assets/14149230/33200a52-b615-4f77-ba01-03a1a9ad4d78"
+        alt="llama 2 vs gpt-3.5 fight preview"
+        class="rounded-lg shadow-2xl border-4 border-red-500 my-8"
+      />
       <p>
         <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
         has taken the world by storm. Many have
@@ -8,6 +13,7 @@
         <br /><br /> Each round, pick the output you think is better. Each model has 10 hitpoints.
         <br /><br /> Enough talk. Let's settle this in the ring.
       </p>
+
       <button
         phx-click="start"
         class="mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
@@ -34,98 +40,60 @@
     </div>
 
     <div class="mt-16">
-      <%= if @submitted do %>
-        <h5 class="text-4xl font-bold">"<%= @text_prompt %>"</h5>
-      <% else %>
-        <form id="submit-form" phx-submit="generate">
-          <div>
-            <label for="prompt" class="block font-medium leading-6 text-gray-900">
-              Prompt
-            </label>
-            <div class="mt-2">
-              <input
-                name="prompt"
-                required="true"
-                placeholder="Enter your prompt..."
-                type="text"
-                id="prompt"
-                value={@text_prompt}
-                phx-change="update-prompt"
-                class="block w-full font-mono rounded-md border-0 text-xl py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
-              />
-            </div>
-          </div>
-          <div class="grid grid-cols-2 mt-4 gap-4">
-            <.button type="button" phx-click="inspire">Give me a prompt</.button>
-            <button class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500">
-              Fight!
-            </button>
-          </div>
-        </form>
-      <% end %>
+      <h5 class="text-4xl font-bold">"<%= @text_prompt %>"</h5>
     </div>
 
     <div id="results" phx-hook="Confetti" class="mt-6">
-      <%= if @loading do %>
-        <div class="mb-4">Preparing fight...</div>
-        <video
-          id="loading"
-          autoplay
-          loop
-          src="https://github.com/replicate/zoo/assets/14149230/fed424ea-9083-4148-9eec-6b1098ee46ed"
-        >
-        </video>
-      <% else %>
-        <h5 :if={@submitted} id="header" class="text-2xl font-bold">
-          Which is a better response?
-        </h5>
-        <div class="grid grid-cols-2 gap-4 mt-6">
-          <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
-            <div class={"#{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "text-green-500"} border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100"}>
-              <p class="model font-bold mb-4">
-                <%= if @show_results,
-                  do: prompt.model,
-                  else: "Contestant #{i + 1}" %>
-              </p>
+      <h5 id="header" class="text-2xl font-bold">
+        Which is a better response?
+      </h5>
 
-              <button
-                :if={not @show_results}
-                phx-click="select"
-                phx-value-id={prompt.id}
-                phx-value-submission-id={prompt.submission_id}
-                class="absolute inset-0 select-button"
-              >
-              </button>
-              <p><%= prompt.completion %></p>
-            </div>
+      <%= if @show_results do %>
+        <div class="text-center mx-auto mt-16 font-bold">
+          <p>
+            <%= @snarky_response %>
+          </p>
+          <p class="text-xs italic text-gray-500">snark provided by gpt-4</p>
+
+          <%= if is_nil(@winner) do %>
+            <button
+              class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+              phx-click="next"
+            >
+              Next Round in <%= round((4000 - @progress) / 1000) %> &rarr;
+            </button>
+          <% else %>
+            <.link
+              class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+              navigate="/"
+            >
+              Play Again
+            </.link>
           <% end %>
         </div>
       <% end %>
-    </div>
-  <% end %>
 
-  <%= if @show_results do %>
-    <div class="text-center mx-auto mt-16 font-bold">
-      <p>
-        <%= @snarky_response %>
-      </p>
-      <p class="text-xs italic text-gray-500">snark provided by gpt-4</p>
+      <div class="grid grid-cols-2 gap-4 mt-10">
+        <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
+          <div class={"#{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "text-green-500"} border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100"}>
+            <p class="model font-bold mb-4">
+              <%= if @show_results,
+                do: prompt.model,
+                else: "Contestant #{i + 1}" %>
+            </p>
 
-      <%= if is_nil(@winner) do %>
-        <button
-          class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
-          phx-click="next"
-        >
-          Next Round &rarr;
-        </button>
-      <% else %>
-        <.link
-          class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
-          navigate="/"
-        >
-          Play Again
-        </.link>
-      <% end %>
+            <button
+              :if={not @show_results}
+              phx-click="select"
+              phx-value-id={prompt.id}
+              phx-value-submission-id={prompt.submission_id}
+              class="absolute inset-0 select-button"
+            >
+            </button>
+            <p class="whitespace-pre-line"><%= prompt.completion %></p>
+          </div>
+        <% end %>
+      </div>
     </div>
   <% end %>
 

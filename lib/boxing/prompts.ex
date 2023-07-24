@@ -46,6 +46,7 @@ defmodule Boxing.Prompts do
         Prompt
         |> where([p], p.submission_id == ^unique_prompt.submission_id)
         |> Repo.all()
+        |> Enum.shuffle()
 
       # Return a map with the unique prompt and all associated prompts
       %{text_prompt: unique_prompt.prompt, prompts: prompts}

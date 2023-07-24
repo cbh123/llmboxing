@@ -63,6 +63,9 @@ Hooks.Bell = {
 
 Hooks.Timer = {
   mounted() {
+    this.handleEvent("scrollTop", ({}) => {
+      window.scrollTo(0, 0);
+    });
     this.handleEvent("timer", ({ game_over }) => {
       const timerElement = document.getElementById("timer");
       // three second countdown

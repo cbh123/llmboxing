@@ -69,6 +69,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
+     |> push_event("scrollTop", %{})
      |> push_event("confetti", %{winner: prompt.model})}
   end
 

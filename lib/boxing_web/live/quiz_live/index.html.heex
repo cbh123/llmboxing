@@ -98,7 +98,7 @@
         </div>
       <% end %>
 
-      <div class="grid grid-cols-2 gap-4 mt-10">
+      <div class="grid sm:grid-cols-2 gap-4 mt-10">
         <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
           <div class=" border font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
             <p class="model font-bold mb-4">

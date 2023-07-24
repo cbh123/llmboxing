@@ -102,29 +102,28 @@
 
       <div class="grid grid-cols-2 gap-4 mt-10">
         <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
-          <div class=" border text-xs sm:text-base font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
-            <p class="model font-bold mb-4">
-              <%= if @show_results,
-                do: prompt.model,
-                else: "???" %>
-
-              <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
-                <span class="text-green-600">🎉 Round Winner 🎉</span>
-              <% end %>
-            </p>
-
+          <div class="h-96  overflow-y-scroll border text-xs sm:text-base font-mono rounded-lg relative p-4 shadow-lg hover:shadow-xl hover:bg-gray-100">
             <button
-              :if={not @show_results}
+              class="text-left"
               phx-click={
                 JS.push("select")
                 |> JS.add_class("shake", to: "#hp-#{other_model(prompt.model)}")
               }
               phx-value-id={prompt.id}
               phx-value-submission-id={prompt.submission_id}
-              class="absolute inset-0 select-button"
             >
+              <p class="model font-bold mb-4">
+                <%= if @show_results,
+                  do: prompt.model,
+                  else: "???" %>
+
+                <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
+                  <span class="text-green-600">🎉 Round Winner 🎉</span>
+                <% end %>
+              </p>
+
+              <p class="whitespace-pre-line"><%= prompt.completion %></p>
             </button>
-            <p class="whitespace-pre-line"><%= prompt.completion %></p>
           </div>
         <% end %>
       </div>

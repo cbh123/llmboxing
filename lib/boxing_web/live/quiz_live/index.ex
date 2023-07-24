@@ -62,6 +62,14 @@ defmodule BoxingWeb.QuizLive.Index do
      |> push_event("ring", %{})}
   end
 
+  def handle_event(
+        "select",
+        %{"id" => id, "submission-id" => submission_id},
+        %{assigns: %{show_results: true}} = socket
+      ) do
+    {:noreply, socket}
+  end
+
   def handle_event("select", %{"id" => id, "submission-id" => submission_id}, socket) do
     prompt = Prompts.get_prompt!(id)
     {:ok, vote} = Votes.create_vote(%{prompt_id: id, submission_id: submission_id})

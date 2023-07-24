@@ -25,8 +25,8 @@ defmodule BoxingWeb.QuizLive.Index do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", model: "llama70b-v2-chat", health: 5},
-         %{human_name: "🤖 GPT 3.5", model: "gpt-3.5-turbo", health: 5}
+         %{human_name: "🦙 Llama 2", js_name: "llama", model: "llama70b-v2-chat", health: 5},
+         %{human_name: "🤖 GPT 3.5", js_name: "gpt", model: "gpt-3.5-turbo", health: 5}
        ]
      )}
   end
@@ -41,28 +41,24 @@ defmodule BoxingWeb.QuizLive.Index do
 
     new_score =
       socket.assigns.score
-      |> Enum.map(fn %{model: model, health: health, human_name: human_name} ->
+      |> Enum.map(fn %{model: model} = score ->
         if model != prompt.model do
-          %{model: model, health: health - 1, human_name: human_name}
+          %{score | health: score.health - 1}
         else
-          %{model: model, health: health, human_name: human_name}
+          score
         end
       end)
 
     emoji =
       case prompt.model do
-        "gpt-3.5-turbo" -> "🦙 ✅"
-        "llama70b-v2-chat" -> "🤖 ✅"
+        "gpt-3.5-turbo" -> "🦙"
+        "llama70b-v2-chat" -> "🤖"
       end
 
     winner =
       new_score
       |> Enum.filter(fn %{health: health} -> health == 0 end)
       |> Enum.at(0)
-
-    if is_nil(winner) do
-      Process.send_after(self(), :next, 3000)
-    end
 
     {:noreply,
      socket
@@ -72,7 +68,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(show_results: true)
      |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
      |> assign(winner: winner)
-     |> push_event("timer", %{})
+     |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("confetti", %{winner: prompt.model})}
   end
 
@@ -102,5 +98,13 @@ defmodule BoxingWeb.QuizLive.Index do
 
   def handle_event("update-prompt", %{"prompt" => prompt}, socket) do
     {:noreply, assign(socket, text_prompt: prompt)}
+  end
+
+  defp other_model(model) do
+    if String.contains?(model, "llama") do
+      "gpt"
+    else
+      "llama"
+    end
   end
 end

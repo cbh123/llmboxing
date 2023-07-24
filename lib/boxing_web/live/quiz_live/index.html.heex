@@ -1,4 +1,4 @@
-<div id="start" class="max-w-3xl mx-auto" phx-hook="Bell">
+<div id="start" class="max-w-3xl mx-auto" phx-hook="Timer">
   <%= if @prefight do %>
     <div class="text-center mt-8 text-2xl max-w-xl mx-auto font-fight">
       <img
@@ -26,7 +26,10 @@
       <div class="">
         <dl class="mt-5 grid gap-5 grid-cols-2">
           <%= for {score, i} <- @score |> Enum.with_index() do %>
-            <div class={"#{if i == 1, do: "text-right"} overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"}>
+            <div
+              id={"hp-#{score.js_name}"}
+              class={"#{if i == 1, do: "text-right"} hp overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"}
+            >
               <dt class="truncate text-sm font-medium text-gray-500">
                 <%= score.human_name %> Hit Points
               </dt>
@@ -52,7 +55,7 @@
     </div>
 
     <div id="results" phx-hook="Confetti" class="mt-6">
-      <h5 id="header" class="text-xl text-gray-700">
+      <h5 id="header" phx-hook="Bell" class="text-xl text-gray-700">
         Which is a better response?
       </h5>
 
@@ -77,7 +80,6 @@
           <%= if is_nil(@winner) do %>
             <button
               id="next"
-              phx-hook="Timer"
               class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
               phx-click="next"
             >
@@ -111,7 +113,10 @@
 
             <button
               :if={not @show_results}
-              phx-click="select"
+              phx-click={
+                JS.push("select")
+                |> JS.add_class("shake", to: "#hp-#{other_model(prompt.model)}")
+              }
               phx-value-id={prompt.id}
               phx-value-submission-id={prompt.submission_id}
               class="absolute inset-0 select-button"

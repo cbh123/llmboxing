@@ -63,7 +63,8 @@ Hooks.Bell = {
 
 Hooks.Timer = {
   mounted() {
-    this.handleEvent("timer", ({}) => {
+    this.handleEvent("timer", ({ game_over }) => {
+      console.log(game_over);
       const timerElement = document.getElementById("timer");
       // three second countdown
       let count = 3;
@@ -73,8 +74,9 @@ Hooks.Timer = {
 
         timerElement.innerText = `${count}`;
 
-        if (count >= 3) {
+        if (count <= 0) {
           clearInterval(interval);
+          this.pushEvent("next", {});
         }
       }, 1000); // update every 1s for 3 seconds
     });

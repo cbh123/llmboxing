@@ -1,25 +1,27 @@
 <div id="start" class="max-w-3xl mx-auto" phx-hook="Timer">
   <%= if @prefight do %>
-    <div class="text-center mt-8 pb-24 text-2xl max-w-xl mx-auto font-fight">
+    <div class="text-center mt-8 pb-24 text-2xl max-w-xl mx-auto">
       <img
         src={~p"/images/stats.png"}
         alt="llama 2 vs gpt-3.5 fight preview"
         class="rounded-lg shadow-2xl border-4 border-red-500 my-8"
       />
-      <p>
-        <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
-        has taken the world by storm. Many have
-        claimed <a class="underline" href="https://news.ycombinator.com/item?id=36778932">performance similar to OpenAI's GPT-3.5</a>.
-        <br /><br /> Each round, pick the output you think is better. Each model has 10 hitpoints.
-        <br /><br /> Enough talk. Let's settle this in the ring.
-      </p>
+      <div class="prose">
+        <p>
+          <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
+          has taken the world by storm. Many have
+          claimed <a class="underline" href="https://news.ycombinator.com/item?id=36778932">performance similar to OpenAI's GPT-3.5</a>.
+        </p>
+        <p>Each round, pick the output you think is better. Each model has 10 hitpoints.</p>
+        <p>Enough talk. Let's settle this in the ring.</p>
 
-      <button
-        phx-click="start"
-        class="mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
-      >
-        Start Fight
-      </button>
+        <button
+          phx-click="start"
+          class="mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+        >
+          Start Fight
+        </button>
+      </div>
     </div>
   <% else %>
     <div class="font-fight">
@@ -67,7 +69,7 @@
               class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
               phx-click="next"
             >
-              Next Round in <span id="timer">3</span> &rarr;
+              Next Round &rarr;
             </button>
           <% else %>
             <div class="mt-6">

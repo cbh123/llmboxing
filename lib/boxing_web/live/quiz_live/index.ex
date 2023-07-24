@@ -52,7 +52,14 @@ defmodule BoxingWeb.QuizLive.Index do
   end
 
   def handle_event("start", _, socket) do
-    {:noreply, socket |> assign(prefight: false) |> push_event("ring", %{})}
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+      Prompts.get_random_submission()
+
+    {:noreply,
+     socket
+     |> assign(prefight: false)
+     |> push_patch(to: ~p"/question/#{submission_id}")
+     |> push_event("ring", %{})}
   end
 
   def handle_event("select", %{"id" => id, "submission-id" => submission_id}, socket) do

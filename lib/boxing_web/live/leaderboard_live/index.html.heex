@@ -1,4 +1,25 @@
-<.header>Votes</.header>
-<%= for vote <- @votes do %>
-  <%= vote.prompt_id %>
-<% end %>
+<div class="text-center">
+  <.header>Total Wins</.header>
+</div>
+
+<div class="grid grid-cols-2 max-w-xl gap-12 mx-auto">
+  <%= for vote <- @votes do %>
+    <div class="text-center">
+      <%= if(vote.model |> String.contains?("llama")) do %>
+        <img class="h-44 rounded-lg mt-4 mx-auto" src={~p"/images/llama.png"} alt="llama boxing" />
+      <% else %>
+        <img class="h-44 rounded-lg mt-4 mx-auto" src={~p"/images/gpt.png"} alt="gpt-3.5 boxing" />
+      <% end %>
+      <h1 class="font-bold text-2xl mt-12"><%= vote.model %></h1>
+      <p class="text-6xl mt-4"><%= vote.count %> 🏆</p>
+    </div>
+  <% end %>
+</div>
+<div class="mt-12 mx-auto text-center">
+  <.link
+    class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+    navigate="/"
+  >
+    New Fight
+  </.link>
+</div>

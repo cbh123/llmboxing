@@ -7,6 +7,6 @@ defmodule BoxingWeb.LeaderboardLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(votes: Votes.list_votes())}
+    {:ok, socket |> assign(votes: Votes.count_votes())}
   end
 end

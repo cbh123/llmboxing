@@ -7,6 +7,20 @@ defmodule Boxing.Votes do
   alias Boxing.Repo
 
   alias Boxing.Votes.Vote
+  alias Boxing.Prompts.Prompt
+
+  @doc """
+  Returns total count of each model's votes. Note we have to use a join to get model name.
+  """
+  def count_votes() do
+    from(v in Vote,
+      join: p in Prompt,
+      on: p.id == v.prompt_id,
+      group_by: p.model,
+      select: %{model: p.model, count: count(v.id)}
+    )
+    |> Repo.all()
+  end
 
   @doc """
   Returns the list of votes.

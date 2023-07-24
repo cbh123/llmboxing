@@ -33,11 +33,10 @@
               class={"#{if i == 1, do: "text-right"} hp overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"}
             >
               <dt class="truncate text-sm font-medium text-gray-500">
-                <%= score.human_name %> Hit Points
+                <%= score.human_name %>
               </dt>
               <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                <%= score.health %>
-
+                <%= score.health %> Hit Points
                 <div class={"#{if i == 1, do: "transform scale-x-[-1]"} w-full bg-red-200 rounded-full h-2.5 mb-4"}>
                   <div
                     class="bg-blue-600 h-2.5 rounded-full"

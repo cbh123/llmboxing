@@ -185,7 +185,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})
-     |> push_event("confetti", %{winner: winner, sounds: socket.assigns.sounds})}
+     |> push_event("confetti", %{winner: prompt.model, sounds: socket.assigns.sounds})}
   end
 
   defp other_model(model) do

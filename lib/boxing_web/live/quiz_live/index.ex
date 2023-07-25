@@ -66,7 +66,10 @@ defmodule BoxingWeb.QuizLive.Index do
         %{"key" => "ArrowLeft", "left-id" => id, "left-submission-id" => submission_id},
         socket
       ) do
-    send(self(), {:select, id, submission_id})
+    if not socket.assigns.show_results do
+      send(self(), {:select, id, submission_id})
+    end
+
     {:noreply, socket}
   end
 
@@ -75,7 +78,10 @@ defmodule BoxingWeb.QuizLive.Index do
         %{"key" => "ArrowRight", "right-id" => id, "right-submission-id" => submission_id},
         socket
       ) do
-    send(self(), {:select, id, submission_id})
+    if not socket.assigns.show_results do
+      send(self(), {:select, id, submission_id})
+    end
+
     {:noreply, socket}
   end
 
@@ -158,14 +164,16 @@ defmodule BoxingWeb.QuizLive.Index do
 
     emoji =
       case prompt.model do
-        "gpt-3.5-turbo" -> "🦙"
-        "llama70b-v2-chat" -> "🤖"
+        "gpt-3.5-turbo" -> "🤖"
+        "llama70b-v2-chat" -> "🦙"
       end
 
-    winner =
+    loser =
       new_score
       |> Enum.filter(fn %{health: health} -> health == 0 end)
       |> Enum.at(0)
+
+    winner = if is_nil(loser), do: nil, else: other_model_full(loser, new_score)
 
     {:noreply,
      socket
@@ -177,7 +185,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})
-     |> push_event("confetti", %{winner: prompt.model, sounds: socket.assigns.sounds})}
+     |> push_event("confetti", %{winner: winner, sounds: socket.assigns.sounds})}
   end
 
   defp other_model(model) do
@@ -185,6 +193,14 @@ defmodule BoxingWeb.QuizLive.Index do
       "gpt"
     else
       "llama"
+    end
+  end
+
+  defp other_model_full(model, score) do
+    if String.contains?(model.model, "llama") do
+      score |> Enum.filter(fn %{model: model} -> model == "gpt-3.5-turbo" end) |> Enum.at(0)
+    else
+      score |> Enum.filter(fn %{model: model} -> model == "llama70b-v2-chat" end) |> Enum.at(0)
     end
   end
 end

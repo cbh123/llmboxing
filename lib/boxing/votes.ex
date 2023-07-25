@@ -10,6 +10,29 @@ defmodule Boxing.Votes do
   alias Boxing.Prompts.Prompt
 
   @doc """
+  Returns cumulative votes by model.
+  """
+  def cumulative_votes() do
+    vote_query =
+      from(v in Vote,
+        join: p in Prompt,
+        on: p.id == v.prompt_id,
+        select: %{model: p.model, inserted_at: v.inserted_at}
+      )
+
+    from(v in subquery(vote_query),
+      group_by: [fragment("date_trunc('hour', ?)", v.inserted_at), v.model],
+      order_by: [fragment("date_trunc('hour', ?)", v.inserted_at), v.model],
+      select: %{
+        hour: fragment("date_trunc('hour', ?)", v.inserted_at),
+        model: v.model,
+        cumulative_votes: count(v.model)
+      }
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   Returns total count of each model's votes. Note we have to use a join to get model name.
   """
   def count_votes() do

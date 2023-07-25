@@ -76,10 +76,12 @@ Hooks.CopyLinkToClipboard = {
 
 Hooks.Bell = {
   mounted() {
-    this.handleEvent("ring", ({}) => {
-      console.log("bell");
-      let audio = new Audio("/sounds/bell-start.mp3");
-      audio.play();
+    this.handleEvent("ring", ({ sounds }) => {
+      if (sounds) {
+        console.log("bell");
+        let audio = new Audio("/sounds/bell-start.mp3");
+        audio.play();
+      }
     });
   },
 };
@@ -119,21 +121,22 @@ Hooks.Timer = {
 
 Hooks.Confetti = {
   mounted() {
-    this.handleEvent("confetti", ({ winner }) => {
-      console.log(winner);
-      if (winner.includes("gpt")) {
-        let robotNum = Math.floor(Math.random() * 4) + 1;
-        let robotAudio = new Audio(`/sounds/robot${robotNum}.mp3`);
-        robotAudio.play();
-      } else {
-        let llamaNum = Math.floor(Math.random() * 2) + 1;
-        let llamaAudio = new Audio(`/sounds/llama${llamaNum}.mp3`);
-        llamaAudio.play();
-      }
+    this.handleEvent("confetti", ({ winner, sounds }) => {
+      if (sounds) {
+        if (winner.includes("gpt")) {
+          let robotNum = Math.floor(Math.random() * 4) + 1;
+          let robotAudio = new Audio(`/sounds/robot${robotNum}.mp3`);
+          robotAudio.play();
+        } else {
+          let llamaNum = Math.floor(Math.random() * 2) + 1;
+          let llamaAudio = new Audio(`/sounds/llama${llamaNum}.mp3`);
+          llamaAudio.play();
+        }
 
-      let punchNum = Math.floor(Math.random() * 5) + 1;
-      let audio = new Audio(`/sounds/punch${punchNum}.mp3`);
-      audio.play();
+        let punchNum = Math.floor(Math.random() * 5) + 1;
+        let audio = new Audio(`/sounds/punch${punchNum}.mp3`);
+        audio.play();
+      }
 
       confetti({
         particleCount: 100,

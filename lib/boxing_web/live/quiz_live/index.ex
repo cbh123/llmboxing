@@ -23,6 +23,7 @@ defmodule BoxingWeb.QuizLive.Index do
        winner: nil,
        text_prompt: text_prompt,
        prompts: prompts,
+       sounds: true,
        vote_emojis: [],
        progress: 0,
        score: [
@@ -51,6 +52,10 @@ defmodule BoxingWeb.QuizLive.Index do
     {:noreply, socket}
   end
 
+  def handle_event("handle-check", params, socket) do
+    {:noreply, socket |> assign(sounds: !socket.assigns.sounds)}
+  end
+
   def handle_event("start", _, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
       Prompts.get_random_submission()
@@ -59,7 +64,7 @@ defmodule BoxingWeb.QuizLive.Index do
      socket
      |> assign(prefight: false)
      |> push_patch(to: ~p"/question/#{submission_id}")
-     |> push_event("ring", %{})}
+     |> push_event("ring", %{sounds: socket.assigns.sounds})}
   end
 
   def handle_event(
@@ -105,7 +110,7 @@ defmodule BoxingWeb.QuizLive.Index do
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})
-     |> push_event("confetti", %{winner: prompt.model})}
+     |> push_event("confetti", %{winner: prompt.model, sounds: socket.assigns.sounds})}
   end
 
   def handle_event("next", _, socket) do

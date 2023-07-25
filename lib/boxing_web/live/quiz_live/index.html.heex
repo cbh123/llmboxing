@@ -69,7 +69,7 @@
 
     <div class="mt-16">
       <section class="isolate overflow-hidden bg-white px-6 lg:px-8">
-        <div class="relative mx-auto max-w-2xl py-12 lg:max-w-4xl">
+        <div class="relative mx-auto max-w-2xl py-6 lg:max-w-4xl">
           <figure class="grid grid-cols-1 items-center gap-x-6 gap-y-8 lg:gap-x-10">
             <div class="relative col-span-2 lg:col-start-1 lg:row-start-2">
               <svg
@@ -104,9 +104,9 @@
         :if={not @show_results}
         id="header"
         phx-hook="Bell"
-        class="text-xl text-gray-700 text-center"
+        class="text-xl text-gray-600 text-center"
       >
-        Which is a better response?
+        Choose the better response.
       </h5>
 
       <%= if @show_results do %>
@@ -169,10 +169,10 @@
               phx-value-id={prompt.id}
               phx-value-submission-id={prompt.submission_id}
             >
-              <p class="model font-bold mb-4">
+              <p class="model font-bold mb-2">
                 <%= if @show_results,
                   do: prompt.model,
-                  else: "This is better" %>
+                  else: "" %>
 
                 <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
                   <span class="text-green-600">🎉 Round Winner 🎉</span>

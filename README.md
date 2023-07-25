@@ -1,5 +1,8 @@
 # Boxing
 
+![stats-3423d0bf504f942a8ed1c8012fe4d910](https://github.com/cbh123/llmboxing/assets/14149230/5d7806d6-3693-4cb0-ac96-0a52d8bb3222)
+
+
 To start your Phoenix server:
 
   * Run `mix setup` to install and setup dependencies

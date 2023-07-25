@@ -52,6 +52,38 @@ defmodule BoxingWeb.QuizLive.Index do
     {:noreply, socket}
   end
 
+  def handle_event("handle-keypress", %{"key" => "Enter"}, socket) do
+    send(self(), :next)
+    {:noreply, socket}
+  end
+
+  def handle_event("handle-keypress", %{"key" => key}, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "handle-keypress-question",
+        %{"key" => "ArrowLeft", "left-id" => id, "left-submission-id" => submission_id},
+        socket
+      ) do
+    send(self(), {:select, id, submission_id})
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "handle-keypress-question",
+        %{"key" => "ArrowRight", "right-id" => id, "right-submission-id" => submission_id},
+        socket
+      ) do
+    send(self(), {:select, id, submission_id})
+    {:noreply, socket}
+  end
+
+  def handle_event("handle-keypress-question", params, socket) do
+    IO.inspect(params, label: "")
+    {:noreply, socket}
+  end
+
   def handle_event("handle-check", params, socket) do
     {:noreply, socket |> assign(sounds: !socket.assigns.sounds)}
   end
@@ -76,6 +108,41 @@ defmodule BoxingWeb.QuizLive.Index do
   end
 
   def handle_event("select", %{"id" => id, "submission-id" => submission_id}, socket) do
+    send(self(), {:select, id, submission_id})
+    {:noreply, socket}
+  end
+
+  def handle_event("next", _, socket) do
+    send(self(), :next)
+    {:noreply, socket |> push_event("clear_interval", %{})}
+  end
+
+  def handle_event("inspire", _, socket) do
+    text_prompt = Prompts.get_random_prompt()
+    {:noreply, socket |> assign(text_prompt: text_prompt)}
+  end
+
+  def handle_event("update-prompt", %{"prompt" => prompt}, socket) do
+    {:noreply, assign(socket, text_prompt: prompt)}
+  end
+
+  def handle_info(:next, socket) do
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+      Prompts.get_random_submission()
+
+    {:noreply,
+     socket
+     |> assign(show_results: false)
+     |> assign(progress: 0)
+     |> assign(submitted: false)
+     |> assign(prompts: prompts)
+     |> assign(round_winner: nil)
+     |> assign(text_prompt: text_prompt)
+     |> push_event("ring", %{})
+     |> push_patch(to: ~p"/question/#{submission_id}")}
+  end
+
+  def handle_info({:select, id, submission_id}, socket) do
     prompt = Prompts.get_prompt!(id)
     {:ok, vote} = Votes.create_vote(%{prompt_id: id, submission_id: submission_id})
 
@@ -111,36 +178,6 @@ defmodule BoxingWeb.QuizLive.Index do
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})
      |> push_event("confetti", %{winner: prompt.model, sounds: socket.assigns.sounds})}
-  end
-
-  def handle_event("next", _, socket) do
-    send(self(), :next)
-    {:noreply, socket |> push_event("clear_interval", %{})}
-  end
-
-  def handle_info(:next, socket) do
-    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
-      Prompts.get_random_submission()
-
-    {:noreply,
-     socket
-     |> assign(show_results: false)
-     |> assign(progress: 0)
-     |> assign(submitted: false)
-     |> assign(prompts: prompts)
-     |> assign(round_winner: nil)
-     |> assign(text_prompt: text_prompt)
-     |> push_event("ring", %{})
-     |> push_patch(to: ~p"/question/#{submission_id}")}
-  end
-
-  def handle_event("inspire", _, socket) do
-    text_prompt = Prompts.get_random_prompt()
-    {:noreply, socket |> assign(text_prompt: text_prompt)}
-  end
-
-  def handle_event("update-prompt", %{"prompt" => prompt}, socket) do
-    {:noreply, assign(socket, text_prompt: prompt)}
   end
 
   defp other_model(model) do

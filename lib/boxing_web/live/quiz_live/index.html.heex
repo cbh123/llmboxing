@@ -42,22 +42,20 @@
   <% else %>
     <div class="font-fight">
       <div class="">
-        <dl class="mt-5 grid gap-5 grid-cols-2">
+        <dl class="mt-2 grid gap-2">
           <%= for {score, i} <- @score |> Enum.with_index() do %>
             <div
               id={"hp-#{score.js_name}"}
-              class={"#{if i == 1, do: "text-right"} hp overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"}
+              class="hp overflow-hidden rounded-lg bg-white px-4 shadow py-2"
             >
-              <dt class="truncate text-sm font-medium text-gray-500">
-                <%= score.human_name %>
-              </dt>
-              <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">
-                <%= score.health %> <span class="text-sm">Hit Points Remaining</span>
-                <div class={"#{if i == 1, do: "transform scale-x-[-1]"} w-full bg-red-200 rounded-full h-2.5 mb-4"}>
-                  <div
-                    class="bg-blue-600 h-2.5 rounded-full"
-                    style={"width: #{score.health * 20}%"}
-                  >
+              <dt class="truncate text-sm font-medium text-gray-500"></dt>
+              <dd class=" text-xl font-semibold tracking-tight text-gray-600">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600"><%= score.human_name %></span>
+                  <span class="text-sm"><%= score.health %> Health Remaining</span>
+                </div>
+                <div class="w-full bg-red-200 rounded-full h-2 mb-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style={"width: #{score.health * 20}%"}>
                   </div>
                 </div>
               </dd>
@@ -99,13 +97,8 @@
       </section>
     </div>
 
-    <div id="results" phx-hook="Confetti" class="mt-6">
-      <h5
-        :if={not @show_results}
-        id="header"
-        phx-hook="Bell"
-        class="text-xl text-gray-600 text-center"
-      >
+    <div id="results" phx-hook="Confetti" class="">
+      <h5 :if={not @show_results} id="header" phx-hook="Bell" class="text-xl text-gray-600 ml-6">
         Choose the better response.
       </h5>
 
@@ -116,17 +109,18 @@
               type="button"
               id="copy-question"
               phx-hook="CopyLinkToClipboard"
-              class="font-fight mt-6 text-black bg-white px-4 py-2 rounded-lg hover:bg-gray-100 border-2"
+              class="font-fight text-black bg-white px-4 py-2 rounded-lg hover:bg-gray-100 border-2"
             >
               Copy Link to Question
             </button>
 
             <button
+              phx-window-keyup="handle-keypress"
               id="next"
-              class="font-fight mt-6 text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+              class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
               phx-click="next"
             >
-              Next Round &rarr;
+              Next Round (Enter) &rarr;
             </button>
           <% else %>
             <div class="mt-6">
@@ -157,7 +151,14 @@
         </div>
       <% end %>
 
-      <div class="grid grid-cols-2 gap-4 mt-10">
+      <div
+        class="grid grid-cols-2 gap-4 mt-10"
+        phx-window-keyup="handle-keypress-question"
+        phx-value-left-id={(@prompts |> Enum.at(0)).id}
+        phx-value-left-submission-id={(@prompts |> Enum.at(0)).submission_id}
+        phx-value-right-id={(@prompts |> Enum.at(1)).id}
+        phx-value-right-submission-id={(@prompts |> Enum.at(1)).submission_id}
+      >
         <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
           <div class={"overflow-y-scroll #{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "shadow-green-500"} border text-xs sm:text-base font-mono rounded-lg relative p-4 shadow-lg #{if not @show_results, do: "hover:shadow-xl hover:bg-gray-100"} "}>
             <button
@@ -169,10 +170,14 @@
               phx-value-id={prompt.id}
               phx-value-submission-id={prompt.submission_id}
             >
-              <p class="model font-bold mb-2">
-                <%= if @show_results,
-                  do: prompt.model,
-                  else: "" %>
+              <p class={"model font-bold mb-2 #{if i == 1, do: "text-right"}"}>
+                <%= if @show_results do %>
+                  <%= prompt.model %>
+                <% else %>
+                  <span class="text-gray-900">
+                    <%= if i == 0, do: "←", else: "→" %>
+                  </span>
+                <% end %>
 
                 <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
                   <span class="text-green-600">🎉 Round Winner 🎉</span>

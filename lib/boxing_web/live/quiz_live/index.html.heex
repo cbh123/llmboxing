@@ -129,7 +129,7 @@
               <p class="model font-bold mb-4">
                 <%= if @show_results,
                   do: prompt.model,
-                  else: "" %>
+                  else: "This is better" %>
 
                 <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
                   <span class="text-green-600">🎉 Round Winner 🎉</span>

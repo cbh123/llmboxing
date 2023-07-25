@@ -4,6 +4,7 @@ defmodule Boxing.Writer do
   """
   use GenServer
   alias Boxing.Prompts
+  import Config.Reader
 
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{})
@@ -15,7 +16,7 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Prompts.count_prompts() < 1000 do
+    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts() < 1000 do
       questions = Prompts.create_questions()
 
       questions

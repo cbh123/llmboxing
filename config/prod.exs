@@ -19,6 +19,8 @@ config :boxing, BoxingWeb.Endpoint,
     "https://llmboxing.com"
   ]
 
+config :boxing, :env, :prod
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Boxing.Finch
 

@@ -156,14 +156,22 @@ defmodule Boxing.Prompts do
   """
   def get_random_submission() do
     # Define a subquery to get a random submission_id
+
+    # First, find prompts that appear more than once
     subquery =
-      from(p in Prompt,
+      from p in Prompt,
+        group_by: [p.prompt],
+        having: count(p.id) > 1,
+        select: p.prompt
+
+    # Then, select a random row with one of these prompts
+    query =
+      from p in Prompt,
+        where: p.prompt in subquery(subquery),
         order_by: fragment("RANDOM()"),
         limit: 1
-      )
 
-    # Get the random submission_id
-    unique_prompt = Repo.one(subquery)
+    unique_prompt = Repo.one(query)
 
     if unique_prompt == nil do
       %{text_prompt: "No submissions yet!", prompts: []}

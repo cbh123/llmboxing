@@ -16,7 +16,7 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts() < 1000 do
+    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts() < 1500 do
       questions = Prompts.create_questions()
 
       questions

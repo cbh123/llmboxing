@@ -1,4 +1,4 @@
-defmodule BoxingWeb.QuizLive.Index do
+defmodule BoxingWeb.QuizLive.Language do
   use BoxingWeb, :live_view
   alias Phoenix.PubSub
 
@@ -11,7 +11,7 @@ defmodule BoxingWeb.QuizLive.Index do
       PubSub.subscribe(Boxing.PubSub, "predictions")
     end
 
-    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+    %{text_prompt: text_prompt, prompts: prompts, submission_id: _submission_id} =
       Prompts.get_random_submission()
 
     {:ok,

@@ -16,7 +16,7 @@ defmodule Boxing.Drawer do
   end
 
   def handle_info(:create, state) do
-    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts("image") < 5 do
+    if Application.get_env(:boxing, :env) == :dev and Prompts.count_prompts("image") < 10 do
       prompts = Prompts.create_image_prompts()
 
       prompts

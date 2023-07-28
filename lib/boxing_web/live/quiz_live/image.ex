@@ -27,8 +27,14 @@ defmodule BoxingWeb.QuizLive.Image do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "SDXL", js_name: "sdxl", model: "sdxl", health: 5},
-         %{human_name: "Kandinsky 2.2", js_name: "kandinsky", model: "kandinsky-2.2", health: 5}
+         %{human_name: "SDXL", js_name: "sdxl", model: "sdxl", health: 5, emoji: "🖼️ SDXL 🖼️"},
+         %{
+           human_name: "Kandinsky 2.2",
+           js_name: "kandinsky",
+           model: "kandinsky-2.2",
+           health: 5,
+           emoji: "👨‍🎨 Kandinsky 👨‍🎨"
+         }
        ]
      )}
   end
@@ -101,7 +107,7 @@ defmodule BoxingWeb.QuizLive.Image do
     {:noreply,
      socket
      |> assign(prefight: false)
-     |> push_patch(to: ~p"/fight/images/question/#{submission_id}")
+     |> push_patch(to: ~p"/fight/image/question/#{submission_id}")
      |> push_event("ring", %{sounds: socket.assigns.sounds})}
   end
 
@@ -162,12 +168,8 @@ defmodule BoxingWeb.QuizLive.Image do
         end
       end)
 
-    loser =
-      new_score
-      |> Enum.filter(fn %{health: health} -> health == 0 end)
-      |> Enum.at(0)
-
-    winner = if is_nil(loser), do: nil, else: other_model_full(loser, new_score)
+    loser = loser(new_score)
+    winner = if is_nil(loser), do: nil, else: winner(loser, new_score)
 
     {:noreply,
      socket
@@ -175,7 +177,10 @@ defmodule BoxingWeb.QuizLive.Image do
      |> assign(round_winner: prompt)
      |> assign(score: new_score)
      |> assign(show_results: true)
-     |> assign(vote_emojis: socket.assigns.vote_emojis ++ [prompt.model])
+     |> assign(
+       vote_emojis:
+         socket.assigns.vote_emojis ++ [get_model(socket.assigns.score, prompt.model).emoji]
+     )
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})
@@ -190,11 +195,24 @@ defmodule BoxingWeb.QuizLive.Image do
     end
   end
 
-  defp other_model_full(model, score) do
-    if String.contains?(model.model, "llama") do
-      score |> Enum.filter(fn %{model: model} -> model == "gpt-3.5-turbo" end) |> Enum.at(0)
-    else
-      score |> Enum.filter(fn %{model: model} -> model == "llama70b-v2-chat" end) |> Enum.at(0)
-    end
+  defp get_model(score, model_name) do
+    score
+    |> Enum.filter(fn %{model: model} -> model == model_name end)
+    |> Enum.at(0)
+  end
+
+  # Returns the model with the highest health that isn't the loser.
+  defp winner(loser, score) do
+    score
+    |> Enum.filter(fn %{model: model} -> model != loser.model end)
+    |> Enum.max_by(fn %{health: health} -> health end)
+  end
+
+  # Returns the model with 0 health.
+  defp loser(score) do
+    score
+    |> Enum.filter(fn %{health: health} -> health == 0 end)
+    # Returns nil if no elements found
+    |> Enum.at(0)
   end
 end

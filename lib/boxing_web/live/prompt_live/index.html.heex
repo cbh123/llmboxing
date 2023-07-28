@@ -5,7 +5,6 @@
 <.table
   id="prompt"
   rows={@streams.prompt_collection}
-  row_click={fn {_id, prompt} -> JS.navigate(~p"/prompts/#{prompt}") end}
 >
   <:col :let={{_id, prompt}} label="Completion"><%= prompt.prompt %></:col>
   <:col :let={{_id, prompt}} label="Completion"><%= prompt.completion %></:col>

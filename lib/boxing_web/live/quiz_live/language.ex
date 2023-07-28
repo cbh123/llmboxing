@@ -167,12 +167,8 @@ defmodule BoxingWeb.QuizLive.Language do
         "llama70b-v2-chat" -> "🦙"
       end
 
-    loser =
-      new_score
-      |> Enum.filter(fn %{health: health} -> health == 0 end)
-      |> Enum.at(0)
-
-    winner = if is_nil(loser), do: nil, else: other_model_full(loser, new_score)
+    loser = loser(new_score)
+    winner = if is_nil(loser), do: nil, else: winner(loser, new_score)
 
     {:noreply,
      socket
@@ -195,11 +191,16 @@ defmodule BoxingWeb.QuizLive.Language do
     end
   end
 
-  defp other_model_full(model, score) do
-    if String.contains?(model.model, "llama") do
-      score |> Enum.filter(fn %{model: model} -> model == "gpt-3.5-turbo" end) |> Enum.at(0)
-    else
-      score |> Enum.filter(fn %{model: model} -> model == "llama70b-v2-chat" end) |> Enum.at(0)
-    end
+  # Returns the model with the highest health different from the loser.
+  defp winner(loser, score) do
+    score
+    |> Enum.filter(fn %{model: model} -> model != loser.model end)
+    |> Enum.max_by(fn %{health: health} -> health end)
+  end
+
+  # Returns the model with the least health.
+  defp loser(score) do
+    score
+    |> Enum.min_by(fn %{health: health} -> health end)
   end
 end

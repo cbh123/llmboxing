@@ -1,9 +1,9 @@
-defmodule Boxing.Repo.Migrations.AddPromptType do
+defmodule Boxing.Repo.Migrations.AddModelType do
   use Ecto.Migration
 
   def change do
     alter table(:prompts) do
-      add(:prompt_type, :string, default: "language")
+      add(:model_type, :string, default: "language")
       add(:output, :string)
     end
   end

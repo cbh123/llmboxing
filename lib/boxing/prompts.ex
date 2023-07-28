@@ -80,7 +80,8 @@ defmodule Boxing.Prompts do
       model: "llama70b-v2-chat",
       version: version.id,
       time: DateTime.diff(start, completed, :second) |> abs(),
-      submission_id: submission_id
+      submission_id: submission_id,
+      model_type: "language"
     })
   end
 
@@ -105,7 +106,8 @@ defmodule Boxing.Prompts do
       model: "gpt-3.5-turbo",
       version: "gpt-3.5-turbo",
       time: System.convert_time_unit(end_time - start_time, :native, :second) |> abs(),
-      submission_id: submission_id
+      submission_id: submission_id,
+      model_type: "language"
     })
   end
 
@@ -154,22 +156,25 @@ defmodule Boxing.Prompts do
   @doc """
   Get random submission.
   """
-  def get_random_submission() do
+  def get_random_submission(type \\ "language") do
     # Define a subquery to get a random submission_id
 
     # First, find prompts that appear more than once
     subquery =
-      from p in Prompt,
+      from(p in Prompt,
         group_by: [p.prompt],
         having: count(p.id) > 1,
-        select: p.prompt
+        select: p.prompt,
+        where: p.model == ^type
+      )
 
     # Then, select a random row with one of these prompts
     query =
-      from p in Prompt,
+      from(p in Prompt,
         where: p.prompt in subquery(subquery),
         order_by: fragment("RANDOM()"),
         limit: 1
+      )
 
     unique_prompt = Repo.one(query)
 

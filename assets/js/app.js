@@ -127,10 +127,20 @@ Hooks.Confetti = {
           let robotNum = Math.floor(Math.random() * 4) + 1;
           let robotAudio = new Audio(`/sounds/robot${robotNum}.mp3`);
           robotAudio.play();
-        } else {
+        } else if (winner.includes("llama")) {
           let llamaNum = Math.floor(Math.random() * 2) + 1;
           let llamaAudio = new Audio(`/sounds/llama${llamaNum}.mp3`);
           llamaAudio.play();
+        } else if (winner.includes("sdxl")) {
+          let sdxlNum = Math.floor(Math.random() * 3) + 1;
+          let sdxlAudio = new Audio(`/sounds/sdxl${sdxlNum}.mp3`);
+          sdxlAudio.play();
+        } else if (winner.includes("kandinsky")) {
+          let kandinskyNum = Math.floor(Math.random() * 3) + 1;
+          let kandinskyAudio = new Audio(
+            `/sounds/kandinsky${kandinskyNum}.mp3`
+          );
+          kandinskyAudio.play();
         }
 
         let punchNum = Math.floor(Math.random() * 5) + 1;

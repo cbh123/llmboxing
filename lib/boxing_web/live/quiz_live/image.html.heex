@@ -40,7 +40,7 @@
       </div>
     </div>
   <% else %>
-    <div id="results" phx-hook="Confetti" class="">
+    <div id="results" phx-hook="Confetti" class="mt-4">
       <%= if @show_results do %>
         <div class="text-center mx-auto mb-10 font-bold">
           <%= if is_nil(@winner) do %>
@@ -71,8 +71,6 @@
               </.link>
             </div>
           <% end %>
-
-          <p class="mt-6">Round Winner: <%= @round_winner.model %></p>
         </div>
       <% end %>
 

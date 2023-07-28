@@ -101,7 +101,7 @@ defmodule BoxingWeb.QuizLive.Image do
     {:noreply,
      socket
      |> assign(prefight: false)
-     |> push_patch(to: ~p"/question/#{submission_id}")
+     |> push_patch(to: ~p"/fight/images/question/#{submission_id}")
      |> push_event("ring", %{sounds: socket.assigns.sounds})}
   end
 
@@ -145,7 +145,7 @@ defmodule BoxingWeb.QuizLive.Image do
      |> assign(round_winner: nil)
      |> assign(text_prompt: text_prompt)
      |> push_event("ring", %{})
-     |> push_patch(to: ~p"/question/#{submission_id}")}
+     |> push_patch(to: ~p"/fight/image/question/#{submission_id}")}
   end
 
   def handle_info({:select, id, submission_id}, socket) do

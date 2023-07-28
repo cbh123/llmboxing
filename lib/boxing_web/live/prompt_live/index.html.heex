@@ -1,10 +1,5 @@
 <.header>
   Listing Prompts
-  <:actions>
-    <.link patch={~p"/prompts/new"}>
-      <.button>New Prompt</.button>
-    </.link>
-  </:actions>
 </.header>
 
 <.table
@@ -18,34 +13,4 @@
   <:col :let={{_id, prompt}} label="Version"><%= prompt.version %></:col>
   <:col :let={{_id, prompt}} label="Time"><%= prompt.time %></:col>
   <:col :let={{_id, prompt}} label="Submission"><%= prompt.submission_id %></:col>
-  <:action :let={{_id, prompt}}>
-    <div class="sr-only">
-      <.link navigate={~p"/prompts/#{prompt}"}>Show</.link>
-    </div>
-    <.link patch={~p"/prompts/#{prompt}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={{id, prompt}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: prompt.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
 </.table>
-
-<.modal
-  :if={@live_action in [:new, :edit]}
-  id="prompt-modal"
-  show
-  on_cancel={JS.patch(~p"/prompts")}
->
-  <.live_component
-    module={BoxingWeb.PromptLive.FormComponent}
-    id={@prompt.id || :new}
-    title={@page_title}
-    action={@live_action}
-    prompt={@prompt}
-    patch={~p"/prompts"}
-  />
-</.modal>

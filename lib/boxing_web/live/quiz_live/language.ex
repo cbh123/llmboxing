@@ -100,7 +100,7 @@ defmodule BoxingWeb.QuizLive.Language do
     {:noreply,
      socket
      |> assign(prefight: false)
-     |> push_patch(to: ~p"/question/#{submission_id}")
+     |> push_patch(to: ~p"/fight/language/question/#{submission_id}")
      |> push_event("ring", %{sounds: socket.assigns.sounds})}
   end
 
@@ -144,7 +144,7 @@ defmodule BoxingWeb.QuizLive.Language do
      |> assign(round_winner: nil)
      |> assign(text_prompt: text_prompt)
      |> push_event("ring", %{})
-     |> push_patch(to: ~p"/question/#{submission_id}")}
+     |> push_patch(to: ~p"/fight/language/question/#{submission_id}")}
   end
 
   def handle_info({:select, id, submission_id}, socket) do

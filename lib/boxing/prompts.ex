@@ -99,7 +99,7 @@ defmodule Boxing.Prompts do
 
     for model <- [
           "sdxl",
-          # "stable diffusion 1.5",
+          # "stable-diffusion 1.5",
           # "stable-diffusion 2.1",
           # "dall-e",
           "kandinsky-2.2"
@@ -108,36 +108,9 @@ defmodule Boxing.Prompts do
     end
   end
 
-  def gen(%{model: "sdxl" = model_name, prompt: prompt, submission_id: submission_id}) do
-    model = Replicate.Models.get!("stability-ai/sdxl")
-    version = Replicate.Models.get_latest_version!(model)
-
-    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
-    {:ok, prediction} = Replicate.Predictions.wait(prediction)
-
-    result = List.first(prediction.output)
-
-    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
-    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
-
-    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
-
-    IO.puts("Generated Output: #{result} for Model: #{model.name}")
-
-    create_prompt(%{
-      prompt: prompt,
-      output: result,
-      model: model_name,
-      version: version.id,
-      time: DateTime.diff(start, completed, :second) |> abs(),
-      submission_id: submission_id,
-      model_type: "image"
-    })
-  end
-
-  def gen(%{model: "kandinsky-2.2" = model_name, prompt: prompt, submission_id: submission_id}) do
-    model = Replicate.Models.get!("ai-forever/kandinsky-2.2")
-    version = Replicate.Models.get_latest_version!(model)
+  defp replicate_gen(readable_name, owner_model, version, prompt, submission_id, type) do
+    model = Replicate.Models.get!(owner_model)
+    version = Replicate.Models.get_version!(model, version)
 
     {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
     {:ok, prediction} = Replicate.Predictions.wait(prediction)
@@ -154,12 +127,56 @@ defmodule Boxing.Prompts do
     create_prompt(%{
       prompt: prompt,
       output: result,
-      model: model_name,
+      model: readable_name,
       version: version.id,
       time: DateTime.diff(start, completed, :second) |> abs(),
       submission_id: submission_id,
-      model_type: "image"
+      model_type: type
     })
+  end
+
+  def gen(%{model: "sdxl", prompt: prompt, submission_id: submission_id}) do
+    replicate_gen(
+      "sdxl",
+      "stability-ai/sdxl",
+      "2b017d9b67edd2ee1401238df49d75da53c523f36e363881e057f5dc3ed3c5b2",
+      prompt,
+      submission_id,
+      "image"
+    )
+  end
+
+  def gen(%{model: "kandinsky-2.2", prompt: prompt, submission_id: submission_id}) do
+    replicate_gen(
+      "kandinsky-2.2",
+      "ai-forever/kandinsky-2.2",
+      "ea1addaab376f4dc227f5368bbd8eff901820fd1cc14ed8cad63b29249e9d463",
+      prompt,
+      submission_id,
+      "image"
+    )
+  end
+
+  def gen(%{model: "stable-diffusion 1.5", prompt: prompt, submission_id: submission_id}) do
+    replicate_gen(
+      "stable-diffusion 1.5",
+      "stability-ai/stable-diffusion",
+      "b3d14e1cd1f9470bbb0bb68cac48e5f483e5be309551992cc33dc30654a82bb7",
+      prompt,
+      submission_id,
+      "image"
+    )
+  end
+
+  def gen(%{model: "stable-diffusion 2.1", prompt: prompt, submission_id: submission_id}) do
+    replicate_gen(
+      "stable-diffusion 2.1",
+      "stability-ai/stable-diffusion",
+      "ac732df83cea7fff18b8472768c88ad041fa750ff7682a21affe81863cbe77e4",
+      prompt,
+      submission_id,
+      "image"
+    )
   end
 
   def gen(%{

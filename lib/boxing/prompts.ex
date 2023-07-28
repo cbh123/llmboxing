@@ -45,18 +45,128 @@ defmodule Boxing.Prompts do
   end
 
   @doc """
+  Creates image prompts with GPT-4.
+
+  Returns a list of [prompt, prompt, ...]
+  """
+  def create_image_prompts() do
+    {:ok, %{choices: [%{"message" => %{"content" => content}} | _]}} =
+      OpenAI.chat_completion(
+        model: "gpt-4",
+        messages: [
+          %{
+            role: "system",
+            content:
+              "You are a helpful bot that creates questions for comparing language models. Be creative! Just give me the question, and I'll do the rest."
+          },
+          %{
+            role: "user",
+            content: """
+            I'm creating an app that compares image model completions. Can you write me some prompts I can use to compare them? They should be in a wide range of styles. For example, here are some I have already:
+
+            Example outputs:
+            a digital rendering of fish
+            macro photograph of birds, minimalism, cinematic
+            a cat, still life, impressionism, oil painting
+
+            Can you give me another? Just give me the prompts. Separate outputs with a \n. Do NOT include numbers in the output. Do NOT start your response with something like "Sure, here are some additional prompts spanning a number of different topics:". Just give me the prompts.
+            """
+          }
+        ]
+      )
+
+    content |> String.split("\n")
+  end
+
+  @doc """
   Given a question, assigns it a subission ID, answers it with Llama 70B and GPT-3.5,
   and save to DB.
   """
-  def generate(question) do
+  def generate_text_completions(question) do
     submission_id = Ecto.UUID.generate()
 
     for model <- ["gpt-3.5-turbo", "llama70b-v2-chat"] do
-      {:ok, prompt} = write(%{model: model, question: question, submission_id: submission_id})
+      {:ok, _prompt} = gen(%{model: model, question: question, submission_id: submission_id})
     end
   end
 
-  def write(%{model: "llama70b-v2-chat", question: raw_prompt, submission_id: submission_id}) do
+  @doc """
+  Given an image prompt, assigns it a submission ID, generates an image with DALL-E/SDXL/SD 1.5/SD 2.1/Kandinsky 2.2,
+  uploads the output to Supabase, and saves to DB.
+  """
+  def generate_images(prompt) do
+    submission_id = Ecto.UUID.generate()
+
+    for model <- [
+          "sdxl",
+          # "stable diffusion 1.5",
+          # "stable-diffusion 2.1",
+          # "dall-e",
+          "kandinsky-2.2"
+        ] do
+      {:ok, _prompt} = gen(%{model: model, prompt: prompt, submission_id: submission_id})
+    end
+  end
+
+  def gen(%{model: "sdxl" = model_name, prompt: prompt, submission_id: submission_id}) do
+    model = Replicate.Models.get!("stability-ai/sdxl")
+    version = Replicate.Models.get_latest_version!(model)
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = List.first(prediction.output)
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: prompt,
+      output: result,
+      model: model_name,
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id,
+      model_type: "image"
+    })
+  end
+
+  def gen(%{model: "kandinsky-2.2" = model_name, prompt: prompt, submission_id: submission_id}) do
+    model = Replicate.Models.get!("ai-forever/kandinsky-2.2")
+    version = Replicate.Models.get_latest_version!(model)
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = List.first(prediction.output)
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs()
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: prompt,
+      output: result,
+      model: model_name,
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id,
+      model_type: "image"
+    })
+  end
+
+  def gen(%{
+        model: "llama70b-v2-chat" = model_name,
+        question: raw_prompt,
+        submission_id: submission_id
+      }) do
     model = Replicate.Models.get!("replicate/llama70b-v2-chat")
     version = Replicate.Models.get_latest_version!(model)
 
@@ -77,7 +187,7 @@ defmodule Boxing.Prompts do
     create_prompt(%{
       prompt: raw_prompt,
       completion: result,
-      model: "llama70b-v2-chat",
+      model: model_name,
       version: version.id,
       time: DateTime.diff(start, completed, :second) |> abs(),
       submission_id: submission_id,
@@ -85,7 +195,7 @@ defmodule Boxing.Prompts do
     })
   end
 
-  def write(%{model: "gpt-3.5-turbo", question: prompt, submission_id: submission_id}) do
+  def gen(%{model: "gpt-3.5-turbo", question: prompt, submission_id: submission_id}) do
     start_time = System.monotonic_time()
 
     messages = [
@@ -114,8 +224,8 @@ defmodule Boxing.Prompts do
   @doc """
   Count prompts.
   """
-  def count_prompts() do
-    from(p in Prompt) |> Repo.aggregate(:count)
+  def count_prompts(model_type) do
+    from(p in Prompt, where: p.model_type == ^model_type) |> Repo.aggregate(:count)
   end
 
   @doc """
@@ -156,17 +266,17 @@ defmodule Boxing.Prompts do
   @doc """
   Get random submission.
   """
-  def get_random_submission(type \\ "language") do
-    # Define a subquery to get a random submission_id
-
+  def get_random_submission(type) do
     # First, find prompts that appear more than once
     subquery =
       from(p in Prompt,
         group_by: [p.prompt],
         having: count(p.id) > 1,
         select: p.prompt,
-        where: p.model == ^type
+        where: p.model_type == ^type
       )
+
+    IO.puts(type)
 
     # Then, select a random row with one of these prompts
     query =
@@ -176,7 +286,7 @@ defmodule Boxing.Prompts do
         limit: 1
       )
 
-    unique_prompt = Repo.one(query)
+    unique_prompt = Repo.one(query) |> IO.inspect(label: "Unique Prompt")
 
     if unique_prompt == nil do
       %{text_prompt: "No submissions yet!", prompts: []}

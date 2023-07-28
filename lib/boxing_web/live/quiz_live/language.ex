@@ -1,4 +1,4 @@
-defmodule BoxingWeb.QuizLive.Image do
+defmodule BoxingWeb.QuizLive.Language do
   use BoxingWeb, :live_view
   alias Phoenix.PubSub
 
@@ -11,14 +11,13 @@ defmodule BoxingWeb.QuizLive.Image do
       PubSub.subscribe(Boxing.PubSub, "predictions")
     end
 
-    %{text_prompt: text_prompt, prompts: prompts, submission_id: _submission_id} =
-      Prompts.get_random_submission()
+    %{text_prompt: text_prompt, prompts: prompts} = Prompts.get_random_submission("language")
 
     {:ok,
      socket
      |> assign(
        show_results: false,
-       prefight: false,
+       prefight: true,
        round_winner: nil,
        winner: nil,
        text_prompt: text_prompt,
@@ -96,7 +95,7 @@ defmodule BoxingWeb.QuizLive.Image do
 
   def handle_event("start", _, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
-      Prompts.get_random_submission()
+      Prompts.get_random_submission("language")
 
     {:noreply,
      socket
@@ -134,7 +133,7 @@ defmodule BoxingWeb.QuizLive.Image do
 
   def handle_info(:next, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
-      Prompts.get_random_submission()
+      Prompts.get_random_submission("language")
 
     {:noreply,
      socket

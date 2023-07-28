@@ -10,8 +10,9 @@ defmodule Boxing.Prompts.Prompt do
     field(:version, :string)
     field(:submission_id, :binary_id)
     field(:votes, :integer, default: 0)
-    # can also be "image"
+    # model type has to be "image" or "language"
     field(:model_type, :string, default: "language")
+    field(:output, :string)
 
     timestamps()
   end
@@ -27,11 +28,12 @@ defmodule Boxing.Prompts.Prompt do
       :time,
       :submission_id,
       :votes,
-      :model_type
+      :model_type,
+      :output
     ])
+    |> validate_inclusion(:model_type, ["image", "language"])
     |> validate_required([
       :prompt,
-      :completion,
       :model,
       :version,
       :time,

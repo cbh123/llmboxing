@@ -1,4 +1,4 @@
-defmodule BoxingWeb.QuizLive.Language do
+defmodule BoxingWeb.QuizLive.Image do
   use BoxingWeb, :live_view
   alias Phoenix.PubSub
 
@@ -12,13 +12,13 @@ defmodule BoxingWeb.QuizLive.Language do
     end
 
     %{text_prompt: text_prompt, prompts: prompts, submission_id: _submission_id} =
-      Prompts.get_random_submission()
+      Prompts.get_random_submission("image")
 
     {:ok,
      socket
      |> assign(
        show_results: false,
-       prefight: true,
+       prefight: false,
        round_winner: nil,
        winner: nil,
        text_prompt: text_prompt,
@@ -27,8 +27,8 @@ defmodule BoxingWeb.QuizLive.Language do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2", js_name: "llama", model: "llama70b-v2-chat", health: 5},
-         %{human_name: "🤖 GPT 3.5", js_name: "gpt", model: "gpt-3.5-turbo", health: 5}
+         %{human_name: "SDXL", js_name: "sdxl", model: "sdxl", health: 5},
+         %{human_name: "Kandinsky 2.2", js_name: "kandinsky", model: "kandinsky-2.2", health: 5}
        ]
      )}
   end
@@ -96,7 +96,7 @@ defmodule BoxingWeb.QuizLive.Language do
 
   def handle_event("start", _, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
-      Prompts.get_random_submission()
+      Prompts.get_random_submission("image")
 
     {:noreply,
      socket
@@ -134,7 +134,7 @@ defmodule BoxingWeb.QuizLive.Language do
 
   def handle_info(:next, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
-      Prompts.get_random_submission()
+      Prompts.get_random_submission("image")
 
     {:noreply,
      socket
@@ -150,7 +150,7 @@ defmodule BoxingWeb.QuizLive.Language do
 
   def handle_info({:select, id, submission_id}, socket) do
     prompt = Prompts.get_prompt!(id)
-    {:ok, vote} = Votes.create_vote(%{prompt_id: id, submission_id: submission_id})
+    {:ok, _vote} = Votes.create_vote(%{prompt_id: id, submission_id: submission_id})
 
     new_score =
       socket.assigns.score
@@ -161,12 +161,6 @@ defmodule BoxingWeb.QuizLive.Language do
           score
         end
       end)
-
-    emoji =
-      case prompt.model do
-        "gpt-3.5-turbo" -> "🤖"
-        "llama70b-v2-chat" -> "🦙"
-      end
 
     loser =
       new_score
@@ -181,7 +175,7 @@ defmodule BoxingWeb.QuizLive.Language do
      |> assign(round_winner: prompt)
      |> assign(score: new_score)
      |> assign(show_results: true)
-     |> assign(vote_emojis: socket.assigns.vote_emojis ++ [emoji])
+     |> assign(vote_emojis: socket.assigns.vote_emojis ++ [prompt.model])
      |> assign(winner: winner)
      |> push_event("timer", %{game_over: not is_nil(winner)})
      |> push_event("scrollTop", %{})

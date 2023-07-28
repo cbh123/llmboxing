@@ -10,9 +10,7 @@ defmodule Boxing.VotesFixtures do
   def vote_fixture(attrs \\ %{}) do
     {:ok, vote} =
       attrs
-      |> Enum.into(%{
-
-      })
+      |> Enum.into(%{})
       |> Boxing.Votes.create_vote()
 
     vote

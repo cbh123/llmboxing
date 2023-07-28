@@ -1,6 +1,6 @@
-defmodule Boxing.Writer do
+defmodule Boxing.Drawer do
   @moduledoc """
-  GenServer for writing the questions
+  GenServer for making image prompts
   """
   use GenServer
   alias Boxing.Prompts
@@ -16,14 +16,12 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts("language") < 1500 do
-      questions = Prompts.create_questions()
+    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts("image") < 5 do
+      prompts = Prompts.create_image_prompts()
 
-      questions
-      |> Enum.each(fn q ->
-        Prompts.generate_text_completions(
-          "#{q}. Answer as succintly as possible. Maximum response length of 1 paragraph."
-        )
+      prompts
+      |> Enum.each(fn p ->
+        Prompts.generate_images(p)
       end)
 
       schedule_creation()

@@ -108,6 +108,20 @@ defmodule Boxing.Prompts do
     end
   end
 
+  def save_r2(uuid, image_url) do
+    {:ok, resp} = :httpc.request(:get, {image_url, []}, [], body_format: :binary)
+    {{_, 200, 'OK'}, _headers, image_binary} = resp
+
+    file_name = "prediction-#{uuid}.png"
+    bucket = System.get_env!("BUCKET_NAME")
+
+    %{status_code: 200} =
+      ExAws.S3.put_object(bucket, file_name, image_binary)
+      |> ExAws.request!()
+
+    {:ok, "#{System.get_env!("CLOUDFLARE_PUBLIC_URL")}/#{file_name}"}
+  end
+
   defp replicate_gen(readable_name, owner_model, version, prompt, submission_id, type) do
     model = Replicate.Models.get!(owner_model)
     version = Replicate.Models.get_version!(model, version)
@@ -117,16 +131,17 @@ defmodule Boxing.Prompts do
 
     result = List.first(prediction.output)
 
+    # Save to R2
+    {:ok, r2_url} = save_r2(prediction.id, result)
+
     {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
     {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
-
-    DateTime.diff(start, completed, :second) |> abs()
 
     IO.puts("Generated Output: #{result} for Model: #{model.name}")
 
     create_prompt(%{
       prompt: prompt,
-      output: result,
+      output: r2_url,
       model: readable_name,
       version: version.id,
       time: DateTime.diff(start, completed, :second) |> abs(),

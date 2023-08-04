@@ -1,0 +1,184 @@
+<div id="start" class="max-w-3xl mx-auto mb-24" phx-hook="Timer">
+  <%= if @prefight do %>
+    <div class="text-center mt-8 pb-24 text-2xl max-w-xl mx-auto">
+      <img
+        src={~p"/images/stats.png"}
+        alt="llama 2 vs gpt-3.5 fight preview"
+        class="rounded-lg shadow-2xl border-4 border-red-500 my-8"
+      />
+      <div class="prose">
+        <p>
+          <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
+          has taken the world by storm. Many have
+          claimed <a class="underline" href="https://news.ycombinator.com/item?id=36778932">performance similar to OpenAI's GPT-3.5</a>. Let's put that to the test.
+        </p>
+        <p>Each round, pick the output you think is better. Each model has 5 hitpoints.</p>
+        <p>Enough talk. Let's settle this in the ring.</p>
+
+        <div class="relative flex justify-center">
+          <form class="flex h-6 items-center" phx-change="handle-check">
+            <input
+              id="sounds"
+              aria-describedby="sounds-description"
+              name="sounds"
+              checked={@sounds}
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            />
+          </form>
+          <div class="ml-3 text-sm leading-6">
+            <label for="sounds" class="font-medium text-gray-900">I like sound effects</label>
+          </div>
+        </div>
+
+        <button
+          phx-click="start"
+          class="mt-6 font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+        >
+          Begin
+        </button>
+      </div>
+    </div>
+  <% else %>
+    <div id="results" phx-hook="Confetti" class="mt-4">
+      <%= if @show_results do %>
+        <div class="text-center mx-auto mb-10 font-bold">
+          <%= if is_nil(@winner) do %>
+            <button
+              type="button"
+              id="copy-question"
+              phx-hook="CopyLinkToClipboard"
+              class="font-fight text-black bg-white px-4 py-2 rounded-lg hover:bg-gray-100 border-2"
+            >
+              Copy Link to Question
+            </button>
+
+            <button
+              phx-window-keyup="handle-keypress"
+              id="next"
+              class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+              phx-click="next"
+            >
+              Next Round (Enter) &rarr;
+            </button>
+          <% else %>
+            <div class="mt-6">
+              <.link
+                class="font-fight text-white bg-red-600 px-4 py-2 rounded-lg hover:bg-red-500"
+                navigate="/"
+              >
+                Play Again
+              </.link>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div
+        :if={@prompts != []}
+        class="grid grid-cols-2 gap-4 mt-10"
+        phx-window-keyup="handle-keypress-question"
+        phx-value-left-id={(@prompts |> Enum.at(0)).id}
+        phx-value-left-submission-id={(@prompts |> Enum.at(0)).submission_id}
+        phx-value-right-id={(@prompts |> Enum.at(1)).id}
+        phx-value-right-submission-id={(@prompts |> Enum.at(1)).submission_id}
+      >
+        <%= for {prompt, i} <- @prompts |> Enum.with_index() do %>
+          <div class={"#{if not is_nil(@round_winner) and @round_winner.model == prompt.model, do: "shadow-green-500"} relative border font-mono rounded-lg shadow-lg #{if not @show_results, do: "hover:opacity-75 hover:bg-gray-100"} "}>
+            <button
+              class="text-left"
+              phx-click={
+                JS.push("select")
+                |> JS.add_class("shake", to: "#hp-#{other_model(prompt.model)}")
+              }
+              phx-value-id={prompt.id}
+              phx-value-submission-id={prompt.submission_id}
+            >
+              <%= if not is_nil(@round_winner) and @round_winner.model == prompt.model do %>
+                <p class="model font-bold absolute bg-white px-4 py-2 rounded-lg top-2 left-2">
+                  <span class="text-green-600">🎉 Round Winner 🎉</span>
+
+                  <%= prompt.model %>
+                </p>
+              <% end %>
+
+              <img src={prompt.output} class="rounded-lg -mb-2" alt={prompt.prompt} />
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <h5
+    :if={not @show_results}
+    id="header"
+    phx-hook="Bell"
+    class="text-xl mt-12 text-gray-600 ml-12"
+  >
+    Which do you prefer?
+  </h5>
+
+  <div class="mt-6">
+    <blockquote class="text-xl ml-12 font-semibold leading-8 text-gray-900 sm:text-2xl sm:leading-9">
+      <p>
+        <%= @text_prompt %>
+      </p>
+    </blockquote>
+  </div>
+
+  <div class="font-fight mt-24">
+    <div class="">
+      <dl class="mt-2 grid gap-2">
+        <%= for {score, i} <- @score |> Enum.with_index() do %>
+          <div
+            id={"hp-#{score.js_name}"}
+            class="hp overflow-hidden rounded-lg bg-white px-4 shadow py-2"
+          >
+            <dt class="truncate text-sm font-medium text-gray-500"></dt>
+            <dd class=" text-xl font-semibold tracking-tight text-gray-600">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600"><%= score.human_name %></span>
+                <span class="text-sm"><%= score.health %> Health Remaining</span>
+              </div>
+              <div class="w-full bg-red-200 rounded-full h-2 mb-2">
+                <div class="bg-blue-400 h-2 rounded-full" style={"width: #{score.health * 20}%"}>
+                </div>
+              </div>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <%= if @winner do %>
+    <.modal id="winner" show>
+      <div>
+        <.header>
+          <%= @winner.human_name %> wins!
+        </.header>
+        <div class="mt-4">
+          <span id="scoreboard">
+            LLM Boxing Results: <br />
+            <%= for emoji <- @vote_emojis do %>
+              <%= emoji %>
+            <% end %>
+          </span>
+          <div class="mt-12 grid grid-cols-2 gap-4">
+            <.button id="CopyClipboard" phx-hook="CopyToClipboard">Copy Emoji Scoreboard</.button>
+            <div>
+              <.link href="https://replicate.com/stability-ai/sdxl?utm_campaign=llmboxing&utm_source=project">
+                <.button>
+                  Run SDXL on Replicate &rarr;
+                </.button>
+              </.link>
+            </div>
+          </div>
+
+          <div class="mt-6"></div>
+        </div>
+      </div>
+    </.modal>
+  <% end %>
+</div>

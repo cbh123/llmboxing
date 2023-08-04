@@ -16,12 +16,12 @@ defmodule Boxing.Writer do
   end
 
   def handle_info(:create, state) do
-    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts() < 1500 do
+    if Application.get_env(:boxing, :env) == :prod and Prompts.count_prompts("language") < 1500 do
       questions = Prompts.create_questions()
 
       questions
       |> Enum.each(fn q ->
-        Prompts.generate(
+        Prompts.generate_text_completions(
           "#{q}. Answer as succintly as possible. Maximum response length of 1 paragraph."
         )
       end)

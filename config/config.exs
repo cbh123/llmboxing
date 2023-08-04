@@ -39,6 +39,15 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
+config :ex_aws,
+  access_key_id: System.get_env("CLOUDFLARE_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("CLOUDFLARE_SECRET_ACCESS_KEY"),
+  s3: [
+    scheme: "https://",
+    host: "f8cf3fdd7d34cbe87d92a631b818efa1.r2.cloudflarestorage.com",
+    region: "us-east-1"
+  ]
+
 # Configure tailwind (the version is required)
 config :tailwind,
   version: "3.2.4",

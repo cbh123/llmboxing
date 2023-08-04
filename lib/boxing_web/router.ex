@@ -2,32 +2,31 @@ defmodule BoxingWeb.Router do
   use BoxingWeb, :router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, {BoxingWeb.Layouts, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:fetch_live_flash)
+    plug(:put_root_layout, {BoxingWeb.Layouts, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug(:accepts, ["json"])
   end
 
   scope "/", BoxingWeb do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    live "/", QuizLive.Index, :index
-    live "/question/:id", QuizLive.Index, :index
+    live "/", QuizLive.Language, :index
+    live("/fight/image", QuizLive.Image, :index)
+    live("/fight/image/question/:id", QuizLive.Image, :index)
 
-    live "/prompts", PromptLive.Index, :index
-    live "/prompts/new", PromptLive.Index, :new
-    live "/prompts/:id/edit", PromptLive.Index, :edit
+    live("/fight/language", QuizLive.Language, :index)
+    live("/fight/language/question/:id", QuizLive.Language, :index)
 
-    live "/prompts/:id", PromptLive.Show, :show
-    live "/prompts/:id/show/edit", PromptLive.Show, :edit
+    live("/prompts", PromptLive.Index, :index)
 
-    live "/leaderboard", LeaderboardLive.Index, :index
+    live("/leaderboard", LeaderboardLive.Index, :index)
   end
 
   # Other scopes may use custom stacks.
@@ -45,10 +44,10 @@ defmodule BoxingWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
-      pipe_through :browser
+      pipe_through(:browser)
 
-      live_dashboard "/dashboard", metrics: BoxingWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
+      live_dashboard("/dashboard", metrics: BoxingWeb.Telemetry)
+      forward("/mailbox", Plug.Swoosh.MailboxPreview)
     end
   end
 end

@@ -52,7 +52,9 @@ defmodule Boxing.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:openai, "~> 0.5.3"},
       {:replicate, "~> 1.0.3"},
-      {:contex, "~> 0.5.0"}
+      {:contex, "~> 0.5.0"},
+      {:ex_aws, "~> 2.1"},
+      {:ex_aws_s3, "~> 2.0"}
     ]
   end
 

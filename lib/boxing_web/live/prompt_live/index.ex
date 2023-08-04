@@ -6,12 +6,18 @@ defmodule BoxingWeb.PromptLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :prompt_collection, Prompts.list_prompts())}
+    {:ok, socket}
+  end
+
+  def handle_params(%{"type" => type}, _url, socket) do
+    {:noreply, stream(socket, :prompt_collection, Prompts.list_prompts(type))}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    {:noreply,
+     apply_action(socket, socket.assigns.live_action, params)
+     |> stream(:prompt_collection, Prompts.list_prompts())}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -43,5 +49,10 @@ defmodule BoxingWeb.PromptLive.Index do
     {:ok, _} = Prompts.delete_prompt(prompt)
 
     {:noreply, stream_delete(socket, :prompt_collection, prompt)}
+  end
+
+  def handle_event("run-mj", _, socket) do
+    Prompts.add()
+    {:noreply, socket}
   end
 end

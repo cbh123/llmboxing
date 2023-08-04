@@ -4,8 +4,18 @@ defmodule BoxingWeb.PromptLiveTest do
   import Phoenix.LiveViewTest
   import Boxing.PromptsFixtures
 
-  @create_attrs %{completion: "some completion", model: "some model", time: 120.5, version: "some version"}
-  @update_attrs %{completion: "some updated completion", model: "some updated model", time: 456.7, version: "some updated version"}
+  @create_attrs %{
+    completion: "some completion",
+    model: "some model",
+    time: 120.5,
+    version: "some version"
+  }
+  @update_attrs %{
+    completion: "some updated completion",
+    model: "some updated model",
+    time: 456.7,
+    version: "some updated version"
+  }
   @invalid_attrs %{completion: nil, model: nil, time: nil, version: nil}
 
   defp create_prompt(_) do

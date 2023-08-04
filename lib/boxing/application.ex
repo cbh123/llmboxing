@@ -17,7 +17,9 @@ defmodule Boxing.Application do
       # Start Finch
       {Finch, name: Boxing.Finch},
       # Start the Endpoint (http/https)
-      BoxingWeb.Endpoint
+      BoxingWeb.Endpoint,
+      Boxing.Drawer,
+      Boxing.Writer
       # Start a worker by calling: Boxing.Worker.start_link(arg)
       # {Boxing.Worker, arg}
     ]

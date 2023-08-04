@@ -1,11 +1,6 @@
 <.header>
   Prompt <%= @prompt.id %>
   <:subtitle>This is a prompt record from your database.</:subtitle>
-  <:actions>
-    <.link patch={~p"/prompt/#{@prompt}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit prompt</.button>
-    </.link>
-  </:actions>
 </.header>
 
 <.list>
@@ -14,16 +9,3 @@
   <:item title="Version"><%= @prompt.version %></:item>
   <:item title="Time"><%= @prompt.time %></:item>
 </.list>
-
-<.back navigate={~p"/prompt"}>Back to prompt</.back>
-
-<.modal :if={@live_action == :edit} id="prompt-modal" show on_cancel={JS.patch(~p"/prompt/#{@prompt}")}>
-  <.live_component
-    module={BoxingWeb.PromptLive.FormComponent}
-    id={@prompt.id}
-    title={@page_title}
-    action={@live_action}
-    prompt={@prompt}
-    patch={~p"/prompt/#{@prompt}"}
-  />
-</.modal>

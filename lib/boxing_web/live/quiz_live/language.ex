@@ -198,9 +198,11 @@ defmodule BoxingWeb.QuizLive.Language do
     |> Enum.max_by(fn %{health: health} -> health end)
   end
 
-  # Returns the model with the least health.
+  # Returns the model with 0 health.
   defp loser(score) do
     score
-    |> Enum.min_by(fn %{health: health} -> health end)
+    |> Enum.filter(fn %{health: health} -> health == 0 end)
+    # Returns nil if no elements found
+    |> Enum.at(0)
   end
 end

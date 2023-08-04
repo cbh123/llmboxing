@@ -17,10 +17,11 @@ defmodule BoxingWeb.Router do
   scope "/", BoxingWeb do
     pipe_through(:browser)
 
+    live "/", QuizLive.Language, :index
     live("/fight/image", QuizLive.Image, :index)
     live("/fight/image/question/:id", QuizLive.Image, :index)
 
-    live("/", QuizLive.Language, :index)
+    live("/fight/language", QuizLive.Language, :index)
     live("/fight/language/question/:id", QuizLive.Language, :index)
 
     live("/prompts", PromptLive.Index, :index)

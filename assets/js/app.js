@@ -123,6 +123,7 @@ Hooks.Confetti = {
   mounted() {
     this.handleEvent("confetti", ({ winner, sounds }) => {
       if (sounds) {
+        console.log(`winner is ${winner}`);
         if (winner.includes("gpt")) {
           let robotNum = Math.floor(Math.random() * 4) + 1;
           let robotAudio = new Audio(`/sounds/robot${robotNum}.mp3`);
@@ -141,6 +142,12 @@ Hooks.Confetti = {
             `/sounds/kandinsky${kandinskyNum}.mp3`
           );
           kandinskyAudio.play();
+        } else if (winner.includes("midjourney")) {
+          let midjourneyNum = Math.floor(Math.random() * 3) + 1;
+          let midjourneyAudio = new Audio(
+            `/sounds/midjourney${midjourneyNum}.mp3`
+          );
+          midjourneyAudio.play();
         }
 
         let punchNum = Math.floor(Math.random() * 5) + 1;

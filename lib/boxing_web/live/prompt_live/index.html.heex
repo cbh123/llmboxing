@@ -2,6 +2,8 @@
   Listing Prompts
 </.header>
 
+<.button phx-click="run-mj">Run</.button>
+
 <.table id="prompt" rows={@streams.prompt_collection}>
   <:col :let={{_id, prompt}} label="Completion"><%= prompt.prompt %></:col>
   <:col :let={{_id, prompt}} label="Completion"><%= prompt.completion %></:col>

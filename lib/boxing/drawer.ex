@@ -16,8 +16,8 @@ defmodule Boxing.Drawer do
   end
 
   def handle_info(:create, state) do
-    if Application.get_env(:boxing, :env) == :dev and Prompts.count_prompts("image") < 10 do
-      prompts = Prompts.create_image_prompts()
+    if Application.get_env(:boxing, :env) == :dev and Prompts.count_prompts("image") < 100 do
+      prompts = Prompts.create_image_prompts() |> IO.inspect(label: "IMAGE PROMPTS CREATED!")
 
       prompts
       |> Enum.each(fn p ->
@@ -32,6 +32,6 @@ defmodule Boxing.Drawer do
 
   defp schedule_creation() do
     # Every 5 seconds
-    Process.send_after(self(), :create, 5000)
+    # Process.send_after(self(), :create, 5000)
   end
 end

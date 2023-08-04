@@ -27,13 +27,13 @@ defmodule BoxingWeb.QuizLive.Image do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "SDXL", js_name: "sdxl", model: "sdxl", health: 5, emoji: "🖼️ SDXL 🖼️"},
+         %{human_name: "SDXL", js_name: "sdxl", model: "sdxl", health: 5, emoji: "🖼️"},
          %{
-           human_name: "Kandinsky 2.2",
-           js_name: "kandinsky",
-           model: "kandinsky-2.2",
+           human_name: "Midjourney V5",
+           js_name: "midjourney",
+           model: "midjourney v5",
            health: 5,
-           emoji: "👨‍🎨 Kandinsky 👨‍🎨"
+           emoji: "⛵"
          }
        ]
      )}
@@ -58,12 +58,14 @@ defmodule BoxingWeb.QuizLive.Image do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event("handle-keypress", %{"key" => "Enter"}, socket) do
     send(self(), :next)
     {:noreply, socket}
   end
 
-  def handle_event("handle-keypress", %{"key" => key}, socket) do
+  @impl true
+  def handle_event("handle-keypress", %{"key" => _key}, socket) do
     {:noreply, socket}
   end
 
@@ -96,12 +98,12 @@ defmodule BoxingWeb.QuizLive.Image do
     {:noreply, socket}
   end
 
-  def handle_event("handle-check", params, socket) do
+  def handle_event("handle-check", _params, socket) do
     {:noreply, socket |> assign(sounds: !socket.assigns.sounds)}
   end
 
   def handle_event("start", _, socket) do
-    %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
+    %{text_prompt: _text_prompt, prompts: _prompts, submission_id: submission_id} =
       Prompts.get_random_submission("image")
 
     {:noreply,
@@ -113,7 +115,7 @@ defmodule BoxingWeb.QuizLive.Image do
 
   def handle_event(
         "select",
-        %{"id" => id, "submission-id" => submission_id},
+        %{"id" => _id, "submission-id" => _submission_id},
         %{assigns: %{show_results: true}} = socket
       ) do
     {:noreply, socket}
@@ -138,6 +140,7 @@ defmodule BoxingWeb.QuizLive.Image do
     {:noreply, assign(socket, text_prompt: prompt)}
   end
 
+  @impl true
   def handle_info(:next, socket) do
     %{text_prompt: text_prompt, prompts: prompts, submission_id: submission_id} =
       Prompts.get_random_submission("image")

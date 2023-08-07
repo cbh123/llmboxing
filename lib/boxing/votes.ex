@@ -40,6 +40,7 @@ defmodule Boxing.Votes do
       join: p in Prompt,
       on: p.id == v.prompt_id,
       group_by: p.model,
+      where: p.model in ["llama70b-v2-chat", "gpt-3.5-turbo"],
       select: %{model: p.model, count: count(v.id)}
     )
     |> Repo.all()

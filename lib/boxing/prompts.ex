@@ -253,7 +253,7 @@ defmodule Boxing.Prompts do
     model = Replicate.Models.get!("a16z-infra/mistral-7b-instruct-v0.1")
     version = Replicate.Models.get_latest_version!(model)
 
-    prompt = "User: #{raw_prompt}\nAssistant:"
+    prompt = raw_prompt
 
     {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
     {:ok, prediction} = Replicate.Predictions.wait(prediction)
@@ -288,9 +288,12 @@ defmodule Boxing.Prompts do
     model = Replicate.Models.get!("meta/llama-2-13b-chat")
     version = Replicate.Models.get_latest_version!(model)
 
-    prompt = "User: #{raw_prompt}\nAssistant:"
+    prompt = raw_prompt
+    system_prompt = "You are a helpful assistant. Do not respond with 'sure thing'."
 
-    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} =
+      Replicate.Predictions.create(version, %{prompt: prompt, system_prompt: system_prompt})
+
     {:ok, prediction} = Replicate.Predictions.wait(prediction)
 
     result = Enum.join(prediction.output)

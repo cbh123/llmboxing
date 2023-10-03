@@ -19,7 +19,8 @@ defmodule Boxing.Application do
       # Start the Endpoint (http/https)
       BoxingWeb.Endpoint,
       Boxing.Drawer,
-      Boxing.Writer
+      Boxing.Writer,
+      Boxing.LlamaMistralWriter
       # Start a worker by calling: Boxing.Worker.start_link(arg)
       # {Boxing.Worker, arg}
     ]

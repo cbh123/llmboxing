@@ -1,5 +1,7 @@
 import Config
 
+config :boxing, env: :dev
+
 # Configure your database
 config :boxing, Boxing.Repo,
   username: "postgres",

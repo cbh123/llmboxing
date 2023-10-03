@@ -9,6 +9,17 @@ defmodule Boxing.Prompts do
   alias Boxing.Prompts.Prompt
 
   @doc """
+  Count prompts
+  """
+  def count_prompts() do
+    Repo.aggregate(Prompt, :count)
+  end
+
+  def count_prompts_by_fight(fight_name) do
+    Repo.aggregate(from(p in Prompt, where: p.fight_name == ^fight_name), :count)
+  end
+
+  @doc """
   Creates a question(s) with GPT-4.
 
   Returns a list of [question, question, ...]
@@ -82,11 +93,17 @@ defmodule Boxing.Prompts do
   Given a question, assigns it a subission ID, answers it with Llama 70B and GPT-3.5,
   and save to DB.
   """
-  def generate_text_completions(question) do
+  def generate_text_completions(question, models, fight_name) do
     submission_id = Ecto.UUID.generate()
 
-    for model <- ["gpt-3.5-turbo", "llama70b-v2-chat"] do
-      {:ok, _prompt} = gen(%{model: model, question: question, submission_id: submission_id})
+    for model <- models do
+      {:ok, _prompt} =
+        gen(%{
+          model: model,
+          question: question,
+          submission_id: submission_id,
+          fight_name: fight_name
+        })
     end
   end
 
@@ -110,7 +127,7 @@ defmodule Boxing.Prompts do
 
   def save_r2(uuid, image_url) do
     {:ok, resp} = :httpc.request(:get, {image_url, []}, [], body_format: :binary)
-    {{_, 200, 'OK'}, _headers, image_binary} = resp
+    {{_, 200, ~c"OK"}, _headers, image_binary} = resp
 
     file_name = "prediction-#{uuid}.png"
     bucket = System.get_env("BUCKET_NAME")
@@ -227,6 +244,76 @@ defmodule Boxing.Prompts do
     })
   end
 
+  def gen(%{
+        model: "mistral-7b-instruct-v0.1" = model_name,
+        question: raw_prompt,
+        submission_id: submission_id,
+        fight_name: fight_name
+      }) do
+    model = Replicate.Models.get!("a16z-infra/mistral-7b-instruct-v0.1")
+    version = Replicate.Models.get_latest_version!(model)
+
+    prompt = "User: #{raw_prompt}\nAssistant:"
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = Enum.join(prediction.output)
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: raw_prompt,
+      completion: result,
+      model: model_name,
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id,
+      model_type: "language",
+      fight_name: fight_name
+    })
+  end
+
+  def gen(%{
+        model: "llama-2-13b-chat" = model_name,
+        question: raw_prompt,
+        submission_id: submission_id,
+        fight_name: fight_name
+      }) do
+    model = Replicate.Models.get!("meta/llama-2-13b-chat")
+    version = Replicate.Models.get_latest_version!(model)
+
+    prompt = "User: #{raw_prompt}\nAssistant:"
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = Enum.join(prediction.output)
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: raw_prompt,
+      completion: result,
+      model: model_name,
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id,
+      model_type: "language",
+      fight_name: fight_name
+    })
+  end
+
   def gen(%{model: "gpt-3.5-turbo", question: prompt, submission_id: submission_id}) do
     start_time = System.monotonic_time()
 
@@ -305,10 +392,54 @@ defmodule Boxing.Prompts do
         group_by: [p.prompt],
         having: count(p.id) == 2,
         select: p.prompt,
-        where: p.model_type == ^type
+        # ugh, a byproduct of old stuff
+        where: p.model_type == ^type and p.fight_name != "llama-vs-mistral"
       )
 
     IO.puts(type)
+
+    # Then, select a random row with one of these prompts
+    query =
+      from(p in Prompt,
+        where: p.prompt in subquery(subquery),
+        order_by: fragment("RANDOM()"),
+        limit: 1
+      )
+
+    unique_prompt = Repo.one(query) |> IO.inspect(label: "Unique Prompt")
+
+    if unique_prompt == nil do
+      %{text_prompt: "No submissions yet!", prompts: []}
+    else
+      # Get all prompts with the random submission_id
+      prompts =
+        from(p in Prompt, where: p.submission_id == ^unique_prompt.submission_id, limit: 2)
+        |> Repo.all()
+        |> Enum.shuffle()
+
+      # Return a map with the unique prompt and all associated prompts
+      %{
+        text_prompt: unique_prompt.prompt,
+        prompts: prompts,
+        submission_id: unique_prompt.submission_id
+      }
+    end
+  end
+
+  @doc """
+  Get random submission.
+  """
+  def get_random_submission_by_fight_type(fight_name) do
+    # First, find prompts that appear more than once
+    subquery =
+      from(p in Prompt,
+        group_by: [p.prompt],
+        having: count(p.id) == 2,
+        select: p.prompt,
+        where: p.fight_name == ^fight_name
+      )
+
+    IO.puts(fight_name)
 
     # Then, select a random row with one of these prompts
     query =

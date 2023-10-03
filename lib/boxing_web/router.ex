@@ -23,6 +23,8 @@ defmodule BoxingWeb.Router do
 
     live("/fight/language", QuizLive.Language, :index)
     live("/fight/language/question/:id", QuizLive.Language, :index)
+    live "/llama-vs-mistral", QuizLive.LlamaMistral, :index
+    live "/llama-vs-mistral/question/:id", QuizLive.LlamaMistral, :index
 
     live("/prompts", PromptLive.Index, :index)
 

@@ -14,6 +14,7 @@ defmodule Boxing.Prompts.Prompt do
     field(:model_type, :string, default: "language")
     field(:output, :string)
     field :fight_name, :string, default: "llama-vs-gpt"
+    field :system_prompt, :string
 
     timestamps()
   end
@@ -31,7 +32,8 @@ defmodule Boxing.Prompts.Prompt do
       :votes,
       :model_type,
       :output,
-      :fight_name
+      :fight_name,
+      :system_prompt
     ])
     |> validate_inclusion(:model_type, ["image", "language"])
     |> validate_required([

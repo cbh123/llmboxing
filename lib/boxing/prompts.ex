@@ -315,7 +315,8 @@ defmodule Boxing.Prompts do
       time: DateTime.diff(start, completed, :second) |> abs(),
       submission_id: submission_id,
       model_type: "language",
-      fight_name: fight_name
+      fight_name: fight_name,
+      system_prompt: system_prompt
     })
   end
 

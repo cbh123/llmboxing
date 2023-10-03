@@ -289,7 +289,9 @@ defmodule Boxing.Prompts do
     version = Replicate.Models.get_latest_version!(model)
 
     prompt = raw_prompt
-    system_prompt = "You are a helpful assistant. Do not respond with 'sure thing'."
+
+    system_prompt =
+      "You are a helpful assistant. Do not respond with 'sure thing' or certainly. Just tell me the answer."
 
     {:ok, prediction} =
       Replicate.Predictions.create(version, %{prompt: prompt, system_prompt: system_prompt})

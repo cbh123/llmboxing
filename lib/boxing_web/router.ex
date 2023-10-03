@@ -17,7 +17,7 @@ defmodule BoxingWeb.Router do
   scope "/", BoxingWeb do
     pipe_through(:browser)
 
-    live "/", QuizLive.Language, :index
+    live "/", QuizLive.LlamaMistral, :index
     live("/fight/image", QuizLive.Image, :index)
     live("/fight/image/question/:id", QuizLive.Image, :index)
 

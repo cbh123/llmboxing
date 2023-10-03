@@ -27,12 +27,12 @@ defmodule BoxingWeb.QuizLive.LlamaMistral do
        vote_emojis: [],
        progress: 0,
        score: [
-         %{human_name: "🦙 Llama 2 13b", js_name: "llama", model: "llama-2-13b-chat", health: 1},
+         %{human_name: "🦙 Llama 2 13b", js_name: "llama", model: "llama-2-13b-chat", health: 5},
          %{
            human_name: "Ⓜ️ Mistral 7b",
            js_name: "mistral",
            model: "mistral-7b-instruct-v0.1",
-           health: 1
+           health: 5
          }
        ]
      )}

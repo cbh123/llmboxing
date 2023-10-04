@@ -412,7 +412,7 @@ defmodule Boxing.Prompts do
         limit: 1
       )
 
-    unique_prompt = Repo.one(query) |> IO.inspect(label: "Unique Prompt")
+    unique_prompt = Repo.one(query)
 
     if unique_prompt == nil do
       %{text_prompt: "No submissions yet!", prompts: []}
@@ -455,7 +455,7 @@ defmodule Boxing.Prompts do
         limit: 1
       )
 
-    unique_prompt = Repo.one(query) |> IO.inspect(label: "Unique Prompt")
+    unique_prompt = Repo.one(query)
 
     if unique_prompt == nil do
       %{text_prompt: "No submissions yet!", prompts: []}

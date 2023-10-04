@@ -1,37 +1,75 @@
 <div class="max-w-xl mx-auto pb-24">
   <div class="mt-12 prose">
     <h1>What's going on here?</h1>
+
     <p class="mt-6">
-      <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
-      has taken the world by storm. Many have
+      A few months ago <a class="underline" href="https://ai.meta.com/llama/">Llama2</a>
+      took the world by storm. Many
       claimed <a class="underline" href="https://news.ycombinator.com/item?id=36778932">performance similar to OpenAI's GPT-3.5</a>.
     </p>
 
     <p>
-      I thought I'd put that to the test by gamifying a comparison between the two. Here are the results so far:
+      I put that to the test by gamifying a comparison between the two.
+      It ended in disastrous defeat for gpt-3.5-turbo, as llama2-70b decisively beat its opponent. Here was the score.
     </p>
   </div>
 
   <div class="grid grid-cols-2 gap-12 mx-auto mt-12">
-    <%= for vote <- @votes do %>
-      <div class="text-center">
-        <%= if(vote.model |> String.contains?("llama")) do %>
-          <img
-            class="h-44 rounded-lg mt-4 mx-auto"
-            src={~p"/images/llama.png"}
-            alt="llama boxing"
-          />
-        <% else %>
-          <img
-            class="h-44 rounded-lg mt-4 mx-auto"
-            src={~p"/images/gpt.png"}
-            alt="gpt-3.5 boxing"
-          />
-        <% end %>
-        <h1 class="font-bold text-2xl mt-12"><%= vote.model %></h1>
-        <p class="text-6xl mt-4"><%= vote.count %> 🏆</p>
-      </div>
-    <% end %>
+    <div class="text-center relative">
+      <img class="h-44 rounded-lg mt-4 mx-auto" src={~p"/images/llama.png"} alt="llama boxing" />
+      <h1 class="text-red-500 text-2xl font-bold uppercase absolute top-4 -rotate-45">WINNER</h1>
+      <h1 class="font-bold text-2xl mt-12">Llama 2 70B Chat</h1>
+      <p class="text-6xl mt-4">
+        <%= @vote_dict["llama-vs-gpt"] |> get_count_by_model("llama70b-v2-chat") %> 🏆
+      </p>
+    </div>
+    <div class="text-center">
+      <img class="h-44 rounded-lg mt-4 mx-auto" src={~p"/images/gpt.png"} alt="gpt-3.5 boxing" />
+      <h1 class="font-bold text-2xl mt-12">GPT 3.5</h1>
+      <p class="text-6xl mt-4">
+        <%= @vote_dict["llama-vs-gpt"] |> get_count_by_model("gpt-3.5-turbo") %> 🏆
+      </p>
+    </div>
+  </div>
+
+  <div class="mt-12 prose">
+    <p class="mt-6">
+      Now, a new challenger is the scene... <a
+        class="underline"
+        href="https://mistral.ai/news/announcing-mistral-7b/"
+      >Mistral 7B</a>.
+      Lightweight, fast, and equipped with a nasty uppercut, Mistral talks big — it claims
+      to
+      <a href="https://mistral.ai/news/announcing-mistral-7b/">
+        outperform Llama 2 13B on all benchmarks.
+      </a>
+      Let's see who wins this time! Results so far:
+    </p>
+  </div>
+
+  <div class="grid grid-cols-2 gap-12 mx-auto mt-12">
+    <div class="text-center">
+      <img
+        class="h-44 rounded-lg mt-4 mx-auto"
+        src={~p"/images/babyllama.png"}
+        alt="llama boxing"
+      />
+      <h1 class="font-bold text-2xl mt-12">Llama 2 13B Chat</h1>
+      <p class="text-6xl mt-4">
+        <%= @vote_dict["llama-vs-mistral"] |> get_count_by_model("llama-2-13b-chat") %> 🏆
+      </p>
+    </div>
+    <div class="text-center">
+      <img
+        class="h-44 rounded-lg mt-4 mx-auto"
+        src={~p"/images/mistral.png"}
+        alt="mistral boxing"
+      />
+      <h1 class="font-bold text-2xl mt-12">Mistral 7B Instruct</h1>
+      <p class="text-6xl mt-4">
+        <%= @vote_dict["llama-vs-mistral"] |> get_count_by_model("mistral-7b-instruct-v0.1") %> 🏆
+      </p>
+    </div>
   </div>
 
   <div class="mt-12 prose">
@@ -55,8 +93,8 @@ Can you give me another? Just give me the question. Separate outputs with a \n. 
     </pre>
 
       <li>
-        GPT-3.5 and Llama 2 70B respond to the questions.
-        I'm running Llama2 on <.link href="https://replicate.com/replicate/llama70b-v2-chat?utm_campaign=llmboxing&utm_source=project">Replicate</.link>, and GPT on OpenAI's API.
+        GPT-3.5 / Llama 2 70B / Llama 2 13B respond to the questions.
+        I'm running Llama2 and Mistral on <.link href="https://replicate.com/replicate/llama70b-v2-chat?utm_campaign=llmboxing&utm_source=project">Replicate</.link>, and GPT on OpenAI's API.
       </li>
 
       <li>Let humans decide which answers are best</li>

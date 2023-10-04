@@ -10,6 +10,30 @@ defmodule Boxing.Votes do
   alias Boxing.Prompts.Prompt
 
   @doc """
+  Returns cumulative votes by model for a given fight.
+  """
+  def cumulative_votes_by_fight(fight_name) do
+    vote_query =
+      from(v in Vote,
+        join: p in Prompt,
+        on: p.id == v.prompt_id,
+        select: %{model: p.model, inserted_at: v.inserted_at},
+        where: p.fight_name == ^fight_name
+      )
+
+    from(v in subquery(vote_query),
+      group_by: [fragment("date_trunc('hour', ?)", v.inserted_at), v.model],
+      order_by: [fragment("date_trunc('hour', ?)", v.inserted_at), v.model],
+      select: %{
+        hour: fragment("date_trunc('hour', ?)", v.inserted_at),
+        model: v.model,
+        cumulative_votes: count(v.model)
+      }
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   Returns cumulative votes by model.
   """
   def cumulative_votes() do
@@ -35,12 +59,12 @@ defmodule Boxing.Votes do
   @doc """
   Returns total count of each model's votes. Note we have to use a join to get model name.
   """
-  def count_votes() do
+  def count_votes_by_fight(fight_name) do
     from(v in Vote,
       join: p in Prompt,
       on: p.id == v.prompt_id,
       group_by: p.model,
-      where: p.model in ["llama70b-v2-chat", "gpt-3.5-turbo"],
+      where: p.fight_name == ^fight_name,
       select: %{model: p.model, count: count(v.id)}
     )
     |> Repo.all()

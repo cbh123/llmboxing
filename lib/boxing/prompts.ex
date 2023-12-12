@@ -280,6 +280,41 @@ defmodule Boxing.Prompts do
   end
 
   def gen(%{
+        model: "mixtral-8x7b" = model_name,
+        question: raw_prompt,
+        submission_id: submission_id,
+        fight_name: fight_name
+      }) do
+    model = Replicate.Models.get!("nateraw/mixtral-8x7b-instruct-v0.1")
+    version = Replicate.Models.get_latest_version!(model)
+
+    prompt = raw_prompt
+
+    {:ok, prediction} = Replicate.Predictions.create(version, %{prompt: prompt})
+    {:ok, prediction} = Replicate.Predictions.wait(prediction)
+
+    result = prediction.output |> Enum.join()
+
+    {:ok, start, _} = DateTime.from_iso8601(prediction.started_at)
+    {:ok, completed, _} = DateTime.from_iso8601(prediction.completed_at)
+
+    DateTime.diff(start, completed, :second) |> abs() |> IO.inspect(label: "Time")
+
+    IO.puts("Generated Output: #{result} for Model: #{model.name}")
+
+    create_prompt(%{
+      prompt: raw_prompt,
+      completion: result,
+      model: model_name,
+      version: version.id,
+      time: DateTime.diff(start, completed, :second) |> abs(),
+      submission_id: submission_id,
+      model_type: "language",
+      fight_name: fight_name
+    })
+  end
+
+  def gen(%{
         model: "llama-2-13b-chat" = model_name,
         question: raw_prompt,
         submission_id: submission_id,
@@ -320,7 +355,12 @@ defmodule Boxing.Prompts do
     })
   end
 
-  def gen(%{model: "gpt-3.5-turbo", question: prompt, submission_id: submission_id}) do
+  def gen(%{
+        model: "gpt-3.5-turbo",
+        question: prompt,
+        submission_id: submission_id,
+        fight_name: fight_name
+      }) do
     start_time = System.monotonic_time()
 
     messages = [
@@ -342,7 +382,8 @@ defmodule Boxing.Prompts do
       version: "gpt-3.5-turbo",
       time: System.convert_time_unit(end_time - start_time, :native, :second) |> abs(),
       submission_id: submission_id,
-      model_type: "language"
+      model_type: "language",
+      fight_name: fight_name
     })
   end
 

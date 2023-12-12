@@ -26,6 +26,9 @@ defmodule BoxingWeb.Router do
     live "/llama-vs-mistral", QuizLive.LlamaMistral, :index
     live "/llama-vs-mistral/question/:id", QuizLive.LlamaMistral, :index
 
+    live "/mixtral-vs-gpt-3.5", QuizLive.MixtralGPT, :index
+    live "/mixtral-vs-gpt-3.5/question/:id", QuizLive.MixtralGPT, :index
+
     live("/prompts", PromptLive.Index, :index)
 
     live("/leaderboard", LeaderboardLive.Index, :index)

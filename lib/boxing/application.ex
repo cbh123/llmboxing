@@ -20,7 +20,8 @@ defmodule Boxing.Application do
       BoxingWeb.Endpoint,
       Boxing.Drawer,
       Boxing.Writer,
-      Boxing.LlamaMistralWriter
+      Boxing.LlamaMistralWriter,
+      Boxing.MixtralGPTWriter
       # Start a worker by calling: Boxing.Worker.start_link(arg)
       # {Boxing.Worker, arg}
     ]

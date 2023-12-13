@@ -2,12 +2,14 @@
   <%= if @prefight do %>
     <div class="text-center mt-8 pb-24 text-2xl max-w-xl mx-auto">
       <img
-        src={~p"/images/mixtral.png"}
+        src={~p"/images/mixtral_stats.png"}
         alt="llama 2 vs mistral fight preview"
         class="rounded-lg shadow-2xl border-4 border-red-500 my-8"
       />
       <div class="prose">
-        <p>(todo)</p>
+        <p>
+          Mixtral 8x7B has entered the ring. A multi-headed mixture of experts, this beast is claiming to match or outperform our old friend GPT-3.5 on most benchmarks.
+        </p>
         <p>Each round, pick the output you think is better. Each model has 5 hitpoints.</p>
         <p>Enough talk. Let's settle this in the ring.</p>
 
@@ -132,16 +134,16 @@
 
           <p class="mt-6">Round Winner: <%= @round_winner.model %></p>
 
-          <%= if @round_winner.model |> String.contains?("llama") do %>
+          <%= if @round_winner.model |> String.contains?("mixtral") do %>
             <img
               class="h-44 rounded-lg mx-auto mt-4"
-              src={~p"/images/llama.png"}
-              alt="llama boxing"
+              src={~p"/images/mixtral.png"}
+              alt="mixtral boxing"
             />
           <% else %>
             <img
               class="h-44 rounded-lg mx-auto mt-4"
-              src={~p"/images/mistral.png"}
+              src={~p"/images/gpt.png"}
               alt="gpt-3.5 boxing"
             />
           <% end %>

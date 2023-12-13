@@ -170,7 +170,7 @@ defmodule BoxingWeb.QuizLive.MixtralGPT do
     emoji =
       case prompt.model do
         "mixtral-8x7b" -> "Ⓜ️"
-        "gpt-3.5-turbo" -> "🦙"
+        "gpt-3.5-turbo" -> "🤖"
       end
 
     loser = loser(new_score)
@@ -191,7 +191,7 @@ defmodule BoxingWeb.QuizLive.MixtralGPT do
 
   defp other_model(model) do
     if String.contains?(model, "gpt") do
-      "mistral"
+      "mixtral"
     else
       "gpt"
     end

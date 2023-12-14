@@ -17,7 +17,7 @@ defmodule Boxing.MixtralGPTWriter do
 
   defp should_work?() do
     case Application.get_env(:boxing, :env) do
-      :prod -> Prompts.count_prompts_by_fight(@fight_name) < 50
+      :prod -> Prompts.count_prompts_by_fight(@fight_name) < 250
       :dev -> Prompts.count_prompts_by_fight(@fight_name) < 50
       _ -> false
     end

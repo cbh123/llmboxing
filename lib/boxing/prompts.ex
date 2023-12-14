@@ -40,11 +40,9 @@ defmodule Boxing.Prompts do
             I'm creating an app that compares large language model completions. Can you write me some prompts I can use to compare them? They should be in a wide range of topics. For example, here are some I have already:
 
             Example outputs:
-            How are you today?
-            My wife wants me to pick up some Indian food for dinner. I always get the same things - what should I try?
-            How much wood could a wood chuck chuck if a wood chuck could chuck wood?
-            What's 3 x 5 / 10 + 9
-            I really like the novel Anathem by Neal Stephenson. Based on that book, what else might I like?
+            Write me a poem about a dog who eats bananas.
+            Solve this logic puzzle: A is true, B is false, C is true. What is A and B and C?
+            Two penguins are rowing a boat. One says to the other, "Wears the paddle." The other says, "Sure does."
 
             Can you give me another? Just give me the question. Separate outputs with a \n. Do NOT include numbers in the output. Do NOT start your response with something like "Sure, here are some additional prompts spanning a number of different topics:". Just give me the questions.
             """

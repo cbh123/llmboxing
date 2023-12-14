@@ -17,7 +17,7 @@ defmodule Boxing.MixtralGPTWriter do
 
   defp should_work?() do
     case Application.get_env(:boxing, :env) do
-      :prod -> Prompts.count_prompts_by_fight(@fight_name) < 500
+      :prod -> Prompts.count_prompts_by_fight(@fight_name) < 50
       :dev -> Prompts.count_prompts_by_fight(@fight_name) < 50
       _ -> false
     end
@@ -25,15 +25,28 @@ defmodule Boxing.MixtralGPTWriter do
 
   def handle_info(:create, state) do
     if should_work?() do
+      IO.puts("Creating prompts for mixtral-vs-gpt")
       questions = Prompts.create_questions()
 
       questions
       |> Enum.each(fn q ->
-        Prompts.generate_text_completions(
-          "#{q}. Answer as succintly as possible. Maximum response length of 1 paragraph.",
-          ["mixtral-8x7b", "gpt-3.5-turbo"],
-          @fight_name
-        )
+        submission_id = Ecto.UUID.generate()
+
+        {:ok, _prompt} =
+          Prompts.gen(%{
+            model: "mixtral-8x7b",
+            question: "#{q}. Answer as succinctly as possible. No more than 100 words.",
+            submission_id: submission_id,
+            fight_name: @fight_name
+          })
+
+        {:ok, _prompt} =
+          Prompts.gen(%{
+            model: "gpt-3.5-turbo",
+            question: "#{q}. Answer as succinctly as possible. No more than 1 paragraph.",
+            submission_id: submission_id,
+            fight_name: @fight_name
+          })
       end)
 
       schedule_creation()

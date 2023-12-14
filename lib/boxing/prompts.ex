@@ -477,21 +477,19 @@ defmodule Boxing.Prompts do
   Get random submission.
   """
   def get_random_submission_by_fight_type(fight_name) do
-    # First, find prompts that appear more than once
+    # select random submission id for a given fight name, where the submission id has more than one prompt
     subquery =
       from(p in Prompt,
-        group_by: [p.prompt],
+        group_by: [p.submission_id],
         having: count(p.id) == 2,
-        select: p.prompt,
+        select: p.submission_id,
         where: p.fight_name == ^fight_name
       )
-
-    IO.puts(fight_name)
 
     # Then, select a random row with one of these prompts
     query =
       from(p in Prompt,
-        where: p.prompt in subquery(subquery),
+        where: p.submission_id in subquery(subquery),
         order_by: fragment("RANDOM()"),
         limit: 1
       )
